@@ -21,35 +21,16 @@ export default function Navbar() {
           Sales
         </NavLink>
       </div>
-      {/* {isAuthenticated ? (
-        <NavLink
-          to='/profile'
-          className='bg-blue-500 text-white px-4 py-2 rounded'
-        >
-          Profile
-        </NavLink>
-      ) : (
-        <NavLink
-          to='/signin'
-          className='bg-blue-500 text-white px-4 py-2 rounded'
-        >
-          SignIn
-        </NavLink>
-      )} */}
       <SignedOut>
         <NavLink
           to='/sign-in'
           className='bg-blue-500 text-white px-4 py-2 rounded'
         >
           Sign In
-          {/* <SignInButton /> */}
         </NavLink>
       </SignedOut>
       <SignedIn>
-        {/* <div className='flex items-center'> */}
         <UserButton afterSignOutUrl='/' />
-        {/* Profile link or user information can be added here */}
-        {/* </div> */}
       </SignedIn>
     </nav>
   );

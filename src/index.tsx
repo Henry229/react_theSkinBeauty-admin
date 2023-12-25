@@ -2,16 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import {
-  ClerkProvider,
-  RedirectToSignIn,
-  SignIn,
-  SignUp,
-  SignedIn,
-  SignedOut,
-} from '@clerk/clerk-react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import ProtectedPage from './protectedPage';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import NotFound from './pages/Notfound';
+import HomePage from './pages/homepage';
+import CalendarPage from './pages/calendarpage';
+import CustomerPage from './pages/customerpage';
+import SalesPage from './pages/salespage';
+import { ClerkProvider, SignIn, SignUp } from '@clerk/clerk-react';
 
 const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
@@ -19,44 +16,27 @@ if (!PUBLISHABLE_KEY) {
   throw new Error('Missing Publishable Key');
 }
 
-const ClerkWithRoutes = () => {
-  const navigate = useNavigate();
-  return (
-    <ClerkProvider
-      publishableKey={PUBLISHABLE_KEY}
-      navigate={(to) => navigate(to)}
-    >
-      <Routes>
-        <Route path='/' element={<App />} />
-        <Route
-          path='/sign-in/*'
-          element={
-            <SignIn redirectUrl={'/protected'} routing='path' path='/sign-in' />
-          }
-        />
-        <Route
-          path='/sign-up/*'
-          element={
-            <SignUp redirectUrl={'/protected'} routing='path' path='/sign-up' />
-          }
-        />
-        <Route
-          path='/protected'
-          element={
-            <>
-              <SignedIn>
-                <ProtectedPage />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn />
-              </SignedOut>
-            </>
-          }
-        />
-      </Routes>
-    </ClerkProvider>
-  );
-};
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />,
+    errorElement: <NotFound />,
+    children: [
+      { index: true, path: '/', element: <HomePage /> },
+      { path: '/calendar', element: <CalendarPage /> },
+      { path: '/customer', element: <CustomerPage /> },
+      { path: '/sales', element: <SalesPage /> },
+      {
+        path: '/sign-in/*',
+        element: <SignIn redirectUrl='/' />,
+      },
+      {
+        path: '/sign-up/*',
+        element: <SignUp redirectUrl='/' />,
+      },
+    ],
+  },
+]);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -64,11 +44,8 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ClerkWithRoutes />
-    </BrowserRouter>
-    {/* <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <App />
-    </ClerkProvider> */}
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <RouterProvider router={router} />
+    </ClerkProvider>
   </React.StrictMode>
 );
