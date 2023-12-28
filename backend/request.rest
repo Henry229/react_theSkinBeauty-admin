@@ -1,0 +1,29 @@
+GET http://localhost:5100/customers
+
+###
+GET http://localhost:5100/customers/7c575358-ecca-456b-b863-df31707740d6
+
+###
+POST http://localhost:5100/customers
+Content-Type: application/json
+
+{
+    "firstName": "John",
+    "lastName": "Doe",
+    "mobile": "1234567890",
+    "email": "johndoe1234@mail.com "
+}
+
+###
+PATCH http://localhost:5100/customers/7c575358-ecca-456b-b863-df31707740d6
+Content-Type: application/json
+
+{
+    "firstName": "John",
+    "lastName": "Doe",
+    "mobile": "61468555777",
+    "email": "johndoe1234@mail.com "
+}
+
+###
+DELETE http://localhost:5100/customers/7c575358-ecca-456b-b863-df31707740d6
