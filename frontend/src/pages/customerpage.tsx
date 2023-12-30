@@ -2,15 +2,21 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import useSWR from 'swr';
 import { format } from 'date-fns';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 
 import AppointmentSection from '../components/appointmentSection';
 import AddCustomerModal from '../components/addCustomerModal';
+import { CustomerType } from '../types/types';
 
 export default function CustomerPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  // const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerType | null>(
     null
   );
+  // const [editingCustomer, setEditingCustomer] = useState<CustomerType | null>(
+  //   null
+  // );
 
   const fetcher = async () => {
     const response = await axios.get('http://localhost:5100/customers');
@@ -19,9 +25,11 @@ export default function CustomerPage() {
 
   const { data, error } = useSWR('customers', fetcher);
 
-  useEffect(() => {
-    console.log('>>>> data', data);
+  // useEffect(() => {
+  //   mutate('http://localhost:5100/customers');
+  // }, []);
 
+  useEffect(() => {
     if (data && data.length > 0) {
       setSelectedCustomer(data[0]);
     }
@@ -30,20 +38,29 @@ export default function CustomerPage() {
   if (error) return <div>Error: {error.message}</div>;
   if (!data) return <div>Loading...</div>;
 
-  type CustomerType = {
-    id: string;
-    firstName: string;
-    lastName: string;
-    mobile: string;
-    email: string;
-    createdAt: Date;
-  };
+  // type CustomerType = {
+  //   id: string;
+  //   firstName: string;
+  //   lastName: string;
+  //   mobile: string;
+  //   email: string;
+  //   createdAt: Date;
+  // };
 
   const { firstName, lastName, mobile, email, createdAt } =
     selectedCustomer ?? {};
 
   const handleCustomerClick = (customer: CustomerType) => {
     setSelectedCustomer(customer);
+  };
+
+  const handleEditClick = (customer: CustomerType) => {
+    console.log('>>>>++++ edit: ', customer);
+
+    setSelectedCustomer(customer);
+    // setEditingCustomer(customer);
+    setModalOpen(true);
+    // setIsEditModalOpen(true);
   };
 
   return (
@@ -63,6 +80,7 @@ export default function CustomerPage() {
         <AddCustomerModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
+          customer={selectedCustomer}
         />
       </div>
 
@@ -85,13 +103,33 @@ export default function CustomerPage() {
         </div>
 
         <div className='w-3/4 overflow-hidden bg-white shadow sm:rounded-lg'>
-          <div className='px-4 py-5 sm:px-6'>
-            <h3 className='text-2xl font-bold leading-6 text-gray-900'>
-              {firstName} {lastName}
-            </h3>
-            <p className='max-w-2xl mt-1 text-sm text-gray-500'>
-              Personal details and appointments.
-            </p>
+          <div className='flex items-center justify-between px-4 py-5 sm:px-6'>
+            <div className=''>
+              <h3 className='text-2xl font-bold leading-6 text-gray-900'>
+                {firstName} {lastName}
+              </h3>
+              <p className='max-w-2xl mt-1 text-sm text-gray-500'>
+                Personal details and appointments.
+              </p>
+            </div>
+            <div className='flex items-center space-x-4'>
+              <button
+                onClick={() => {
+                  selectedCustomer && handleEditClick(selectedCustomer);
+                }}
+                className='text-blue-500 hover:text-blue-700'
+              >
+                <FaEdit className='w-5 h-5' />
+              </button>
+              <button
+                onClick={() => {
+                  /* 삭제 기능을 여기에 구현 */
+                }}
+                className='text-red-500 hover:text-red-700'
+              >
+                <FaTrash className='w-5 h-5' />
+              </button>
+            </div>
           </div>
           <div className='border-t border-gray-200'>
             <dl>

@@ -1,12 +1,18 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+
+import { CustomerType } from '../types/types';
+import { useEffect } from 'react';
+import { useSWRConfig } from 'swr';
+import toast from 'react-hot-toast';
 
 interface AddCustomerModalProps {
   isOpen: boolean;
   onClose: () => void;
+  customer?: CustomerType | null;
 }
 
 const formSchema = z.object({
@@ -21,14 +27,36 @@ type FormSchemaType = z.infer<typeof formSchema>;
 export default function AddCustomerModal({
   isOpen,
   onClose,
+  customer,
 }: AddCustomerModalProps) {
+  const { mutate } = useSWRConfig();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
+    defaultValues: customer || {
+      firstName: '',
+      lastName: '',
+      email: '',
+      mobile: '',
+    },
   });
+
+  useEffect(() => {
+    reset(
+      customer || {
+        firstName: '',
+        lastName: '',
+        email: '',
+        mobile: '',
+      }
+    );
+  }, [customer, reset]);
+
   const navigate = useNavigate();
 
   const handleOutsideClick = (
@@ -47,10 +75,29 @@ export default function AddCustomerModal({
   if (!isOpen) return null;
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
-    console.log(data);
-    await axios.post('http://localhost:5100/customers', data);
-    onClose();
-    navigate('/customer');
+    try {
+      if (customer) {
+        console.log('>>>>update: ', data);
+        await axios.patch(
+          `http://localhost:5100/customers/${customer.id}`,
+          data
+        );
+        toast.success('Updated customer data successfully');
+      } else {
+        console.log('>>>>create: ', data);
+        await axios.post('http://localhost:5100/customers', data);
+        toast.success('Created customer data successfully');
+      }
+      mutate('customers');
+
+      setTimeout(() => {
+        onClose();
+        navigate('/customer');
+      }, 2000);
+    } catch (error) {
+      console.error('An error occurred:', error);
+      toast.error('An error occurred while updating the data');
+    }
   };
 
   return (
