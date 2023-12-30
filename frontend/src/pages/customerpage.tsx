@@ -55,12 +55,18 @@ export default function CustomerPage() {
   };
 
   const handleEditClick = (customer: CustomerType) => {
-    console.log('>>>>++++ edit: ', customer);
-
     setSelectedCustomer(customer);
     // setEditingCustomer(customer);
     setModalOpen(true);
     // setIsEditModalOpen(true);
+  };
+
+  const handleClose = (updatedCustomer?: CustomerType) => {
+    setModalOpen(false);
+    if (updatedCustomer) {
+      // 만약 업데이트된 고객 정보가 있다면, 선택된 고객을 업데이트합니다.
+      setSelectedCustomer(updatedCustomer);
+    }
   };
 
   return (
@@ -79,7 +85,8 @@ export default function CustomerPage() {
         />
         <AddCustomerModal
           isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
+          onClose={handleClose}
+          // onClose={() => setModalOpen(false)}
           customer={selectedCustomer}
         />
       </div>

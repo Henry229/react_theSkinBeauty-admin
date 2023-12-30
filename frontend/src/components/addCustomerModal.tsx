@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 
 interface AddCustomerModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (updatedCustomer?: CustomerType) => void;
   customer?: CustomerType | null;
 }
 
@@ -76,22 +76,28 @@ export default function AddCustomerModal({
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     try {
+      let updatedCustomer: CustomerType | undefined;
       if (customer) {
         console.log('>>>>update: ', data);
-        await axios.patch(
+        const response = await axios.patch(
           `http://localhost:5100/customers/${customer.id}`,
           data
         );
+        updatedCustomer = response.data;
         toast.success('Updated customer data successfully');
       } else {
         console.log('>>>>create: ', data);
-        await axios.post('http://localhost:5100/customers', data);
+        const response = await axios.post(
+          'http://localhost:5100/customers',
+          data
+        );
+        updatedCustomer = response.data;
         toast.success('Created customer data successfully');
       }
       mutate('customers');
 
       setTimeout(() => {
-        onClose();
+        onClose(updatedCustomer);
         navigate('/customer');
       }, 2000);
     } catch (error) {
