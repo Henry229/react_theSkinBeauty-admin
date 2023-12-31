@@ -24,7 +24,7 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-export default function AddCustomerModal({
+export default function AddEditCustomerModal({
   isOpen,
   onClose,
   customer,
@@ -47,18 +47,25 @@ export default function AddCustomerModal({
   });
 
   useEffect(() => {
-    reset(
-      customer || {
+    if (customer === null) {
+      // 새 고객을 추가하는 경우 기본값으로 재설정
+      reset({
         firstName: '',
         lastName: '',
         email: '',
         mobile: '',
-      }
-    );
+      });
+    } else {
+      // 기존 고객을 편집하는 경우 그들의 데이터로 채움
+      reset(customer);
+    }
   }, [customer, reset]);
 
   const navigate = useNavigate();
 
+  const title = customer ? 'Edit Customer' : 'Add Customer';
+
+  // 모달창 밖을 클릭했을떄 모달창이 닫히도록 합니다.
   const handleOutsideClick = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -66,6 +73,7 @@ export default function AddCustomerModal({
     onClose();
   };
 
+  // 모달창 안을 클릭했을때 모달창이 닫히지 않도록 합니다.
   const handleModalClick = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -116,7 +124,7 @@ export default function AddCustomerModal({
         className='relative p-5 mx-auto bg-white border rounded-md shadow-lg top-20 w-96'
         onClick={handleModalClick}
       >
-        <h3 className='mb-4 text-lg font-bold text-center'>Add Customer</h3>
+        <h3 className='mb-4 text-lg font-bold text-center'>{title}</h3>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='mb-2'>
             <label

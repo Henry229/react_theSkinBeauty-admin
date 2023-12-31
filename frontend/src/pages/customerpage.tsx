@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
 import AppointmentSection from '../components/appointmentSection';
-import AddCustomerModal from '../components/addCustomerModal';
+import AddEditCustomerModal from '../components/add-edit-customerModal';
 import { CustomerType } from '../types/types';
 
 export default function CustomerPage() {
@@ -14,6 +14,8 @@ export default function CustomerPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerType | null>(
     null
   );
+  const [isAddingNewCustomer, setIsAddingNewCustomer] = useState(false);
+
   // const [editingCustomer, setEditingCustomer] = useState<CustomerType | null>(
   //   null
   // );
@@ -47,13 +49,23 @@ export default function CustomerPage() {
   //   createdAt: Date;
   // };
 
+  // 고객리스트에서 선택된 고객의 정보 destructuring
   const { firstName, lastName, mobile, email, createdAt } =
     selectedCustomer ?? {};
 
+  //왼쪽 고객 목록에서 고객을 클릭하면, 해당 고객의 정보가 오른쪽에 표시되도록 합니다.
   const handleCustomerClick = (customer: CustomerType) => {
     setSelectedCustomer(customer);
   };
 
+  // Add customer 버튼을 클릭할때
+  const handleAddCustomerClick = () => {
+    setIsAddingNewCustomer(true);
+    // setSelectedCustomer(null);
+    setModalOpen(true);
+  };
+
+  // 고객 정보 edit 버튼을 클릭할때
   const handleEditClick = (customer: CustomerType) => {
     setSelectedCustomer(customer);
     // setEditingCustomer(customer);
@@ -63,6 +75,7 @@ export default function CustomerPage() {
 
   const handleClose = (updatedCustomer?: CustomerType) => {
     setModalOpen(false);
+    setIsAddingNewCustomer(false);
     if (updatedCustomer) {
       // 만약 업데이트된 고객 정보가 있다면, 선택된 고객을 업데이트합니다.
       setSelectedCustomer(updatedCustomer);
@@ -73,7 +86,7 @@ export default function CustomerPage() {
     <>
       <div className='flex gap-4'>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={handleAddCustomerClick}
           className='px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700'
         >
           Add customer
@@ -83,11 +96,10 @@ export default function CustomerPage() {
           type='text'
           placeholder='Search by name, phone number, etc'
         />
-        <AddCustomerModal
+        <AddEditCustomerModal
           isOpen={modalOpen}
           onClose={handleClose}
-          // onClose={() => setModalOpen(false)}
-          customer={selectedCustomer}
+          customer={isAddingNewCustomer ? null : selectedCustomer}
         />
       </div>
 
