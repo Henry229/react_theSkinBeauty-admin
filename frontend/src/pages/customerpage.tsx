@@ -15,10 +15,8 @@ export default function CustomerPage() {
     null
   );
   const [isAddingNewCustomer, setIsAddingNewCustomer] = useState(false);
-
-  // const [editingCustomer, setEditingCustomer] = useState<CustomerType | null>(
-  //   null
-  // );
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
 
   const fetcher = async () => {
     const response = await axios.get('http://localhost:5100/customers');
@@ -34,20 +32,24 @@ export default function CustomerPage() {
   useEffect(() => {
     if (data && data.length > 0) {
       setSelectedCustomer(data[0]);
+      setFilteredCustomers(data);
     }
   }, [data]);
 
+  useEffect(() => {
+    if (data) {
+      const filtered = data.filter(
+        (customer: CustomerType) =>
+          customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          customer.mobile.includes(searchTerm)
+      );
+      setFilteredCustomers(filtered);
+    }
+  }, [searchTerm, data]);
+
   if (error) return <div>Error: {error.message}</div>;
   if (!data) return <div>Loading...</div>;
-
-  // type CustomerType = {
-  //   id: string;
-  //   firstName: string;
-  //   lastName: string;
-  //   mobile: string;
-  //   email: string;
-  //   createdAt: Date;
-  // };
 
   // 고객리스트에서 선택된 고객의 정보 destructuring
   const { firstName, lastName, mobile, email, createdAt } =
@@ -95,6 +97,8 @@ export default function CustomerPage() {
           className='px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline'
           type='text'
           placeholder='Search by name, phone number, etc'
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         <AddEditCustomerModal
           isOpen={modalOpen}
@@ -107,8 +111,11 @@ export default function CustomerPage() {
         <div className='w-1/4'>
           <div className='p-4 bg-gray-100'>
             <h2 className='font-bold text-right'>{data.length} customers</h2>
+            <h3 className='font-semi text-slate-300'>
+              {filteredCustomers.length} are selected
+            </h3>
             <ul>
-              {data.map((customer: CustomerType) => (
+              {filteredCustomers.map((customer: CustomerType) => (
                 <li
                   key={customer.id}
                   className='py-2 hover:bg-gray-300'
