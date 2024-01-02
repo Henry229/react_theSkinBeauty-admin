@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { format } from 'date-fns';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 import AppointmentSection from '../components/appointmentSection';
 import AddEditCustomerModal from '../components/add-edit-customerModal';
 import { CustomerType } from '../types/types';
+import { log } from 'console';
 
 export default function CustomerPage() {
+  const { mutate } = useSWRConfig();
+
   const [modalOpen, setModalOpen] = useState(false);
-  // const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerType | null>(
     null
   );
@@ -24,10 +27,6 @@ export default function CustomerPage() {
   };
 
   const { data, error } = useSWR('customers', fetcher);
-
-  // useEffect(() => {
-  //   mutate('http://localhost:5100/customers');
-  // }, []);
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -75,6 +74,24 @@ export default function CustomerPage() {
     // setIsEditModalOpen(true);
   };
 
+  const handleDeleteClick = async (customer: CustomerType) => {
+    if (window.confirm('Are you sure you want to delete this customer?')) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:5100/customers/${customer.id}`
+        );
+        console.log('>>>>delete: ', response.status);
+
+        if (response.status === 200 || response.status === 201) {
+          toast.success('Deleted customer successfully');
+          mutate('customers');
+        }
+      } catch (error) {
+        toast.error('Failed to delete customer');
+      }
+    }
+  };
+
   const handleClose = (updatedCustomer?: CustomerType) => {
     setModalOpen(false);
     setIsAddingNewCustomer(false);
@@ -111,7 +128,7 @@ export default function CustomerPage() {
         <div className='w-1/4'>
           <div className='p-4 bg-gray-100'>
             <h2 className='font-bold text-right'>{data.length} customers</h2>
-            <h3 className='font-semi text-slate-300'>
+            <h3 className='font-semi text-slate-400'>
               {filteredCustomers.length} are selected
             </h3>
             <ul>
@@ -149,7 +166,7 @@ export default function CustomerPage() {
               </button>
               <button
                 onClick={() => {
-                  /* 삭제 기능을 여기에 구현 */
+                  selectedCustomer && handleDeleteClick(selectedCustomer);
                 }}
                 className='text-red-500 hover:text-red-700'
               >
