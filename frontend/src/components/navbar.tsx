@@ -8,7 +8,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className='flex justify-between items-center p-4 bg-gray-100'>
+    <nav className='flex items-center justify-between p-4 bg-gray-100'>
       <span className='text-xl font-bold'>Logo</span>
       <div className='flex gap-4'>
         <NavLink to='/calendar' className={activeNavClass}>
@@ -17,14 +17,14 @@ export default function Navbar() {
         <NavLink to='/customer' className={activeNavClass}>
           Customer
         </NavLink>
-        <NavLink to='/sales' className={activeNavClass}>
-          Sales
+        <NavLink to='/service' className={activeNavClass}>
+          Service
         </NavLink>
       </div>
       <SignedOut>
         <NavLink
           to='/sign-in'
-          className='bg-blue-500 text-white px-4 py-2 rounded'
+          className='px-4 py-2 text-white bg-blue-500 rounded'
         >
           Sign In
         </NavLink>

@@ -7,7 +7,8 @@ import NotFound from './pages/Notfound';
 import HomePage from './pages/homepage';
 import CalendarPage from './pages/calendarpage';
 import CustomerPage from './pages/customerpage';
-import SalesPage from './pages/salespage';
+import ServicePage from './pages/servicepage';
+
 import { ClerkProvider, SignIn, SignUp } from '@clerk/clerk-react';
 
 const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
@@ -25,7 +26,7 @@ const router = createBrowserRouter([
       { index: true, path: '/', element: <HomePage /> },
       { path: '/calendar', element: <CalendarPage /> },
       { path: '/customer', element: <CustomerPage /> },
-      { path: '/sales', element: <SalesPage /> },
+      { path: '/service', element: <ServicePage /> },
       {
         path: '/sign-in/*',
         element: <SignIn redirectUrl='/' />,
