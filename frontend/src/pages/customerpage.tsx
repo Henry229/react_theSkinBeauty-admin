@@ -193,7 +193,7 @@ export default function CustomerPage() {
                   Date Created
                 </dt>
                 <dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
-                  {createdAt ? format(createdAt, 'MM/dd/yyyy') : 'Unknown'}
+                  {createdAt ? format(createdAt, 'yyyy/MM/dd') : 'Unknown'}
                 </dd>
               </div>
             </dl>

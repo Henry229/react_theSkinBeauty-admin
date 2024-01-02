@@ -7,6 +7,7 @@ import NotFound from './pages/Notfound';
 import HomePage from './pages/homepage';
 import CalendarPage from './pages/calendarpage';
 import CustomerPage from './pages/customerpage';
+import CategoryPage from './pages/categorypage';
 import ServicePage from './pages/servicepage';
 
 import { ClerkProvider, SignIn, SignUp } from '@clerk/clerk-react';
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
       { index: true, path: '/', element: <HomePage /> },
       { path: '/calendar', element: <CalendarPage /> },
       { path: '/customer', element: <CustomerPage /> },
+      { path: '/category', element: <CategoryPage /> },
       { path: '/service', element: <ServicePage /> },
       {
         path: '/sign-in/*',

@@ -40,7 +40,7 @@ export const createCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
   const { name } = req.body;
   try {
-    const category = await prisma.sercategoryvice.update({
+    const category = await prisma.category.update({
       where: {
         id: req.params.id,
       },

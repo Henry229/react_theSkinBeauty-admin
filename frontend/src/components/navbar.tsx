@@ -17,6 +17,9 @@ export default function Navbar() {
         <NavLink to='/customer' className={activeNavClass}>
           Customer
         </NavLink>
+        <NavLink to='/category' className={activeNavClass}>
+          Category
+        </NavLink>
         <NavLink to='/service' className={activeNavClass}>
           Service
         </NavLink>

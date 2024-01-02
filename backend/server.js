@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import customerRoute from './routes/customer-route.js';
+import categoryRoute from './routes/category-route.js';
+import serviceRoute from './routes/service-route.js';
 dotenv.config();
 
 const app = express();
@@ -9,6 +11,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(customerRoute);
+app.use(categoryRoute);
+app.use(serviceRoute);
 
 // const mysql = require('mysql');
 // const cors = require('cors');

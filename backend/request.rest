@@ -27,3 +27,17 @@ Content-Type: application/json
 
 ###
 DELETE http://localhost:5100/customers/7c575358-ecca-456b-b863-df31707740d6
+
+#### category
+GET http://localhost:5100/categories
+
+###
+POST http://localhost:5100/categories
+Content-Type: application/json
+
+{
+    "name": "Basic Care"
+}
+
+#### service
+GET http://localhost:5100/services
