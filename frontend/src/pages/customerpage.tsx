@@ -8,7 +8,6 @@ import toast from 'react-hot-toast';
 import AppointmentSection from '../components/appointmentSection';
 import AddEditCustomerModal from '../components/add-edit-customerModal';
 import { CustomerType } from '../types/types';
-import { log } from 'console';
 
 export default function CustomerPage() {
   const { mutate } = useSWRConfig();

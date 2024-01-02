@@ -28,6 +28,8 @@ export default function CategoryPage() {
   const handleAddCategoryClick = () => {
     setModalOpen(true);
     setIsAddingNewCategory(true);
+    setSelectedCategory(null);
+    console.log('>>>>>---- isAddingNewCategory', isAddingNewCategory);
   };
 
   const editCategory = async (category: CategoryType) => {
