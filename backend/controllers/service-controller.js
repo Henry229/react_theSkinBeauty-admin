@@ -4,7 +4,11 @@ const prisma = new PrismaClient();
 
 export const getServices = async (req, res) => {
   try {
-    const response = await prisma.service.findMany();
+    const response = await prisma.service.findMany({
+      include: {
+        category: true,
+      },
+    });
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ msg: error.message });
@@ -24,12 +28,18 @@ export const getServiceById = async (req, res) => {
   }
 };
 export const createService = async (req, res) => {
-  const { name, price } = req.body;
+  const { name, price, duration, categoryId } = req.body;
   try {
     const service = await prisma.service.create({
       data: {
         name,
         price,
+        duration,
+        category: {
+          connect: {
+            id: categoryId,
+          },
+        },
       },
     });
     res.status(201).json(service);
@@ -39,7 +49,7 @@ export const createService = async (req, res) => {
 };
 
 export const updateService = async (req, res) => {
-  const { name, price } = req.body;
+  const { name, price, duration, categoryId } = req.body;
   try {
     const service = await prisma.service.update({
       where: {
@@ -48,6 +58,8 @@ export const updateService = async (req, res) => {
       data: {
         name,
         price,
+        duration,
+        categoryId,
       },
     });
     res.status(201).json(service);

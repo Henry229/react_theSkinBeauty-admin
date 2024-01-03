@@ -16,7 +16,8 @@ export type CategoryType = {
 export type ServiceType = {
   id: string;
   name: string;
-  price: number;
-  duration: number;
+  price: string;
+  duration: string;
+  category: CategoryType;
   createdAt: Date;
 };

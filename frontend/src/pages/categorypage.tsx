@@ -29,7 +29,6 @@ export default function CategoryPage() {
     setModalOpen(true);
     setIsAddingNewCategory(true);
     setSelectedCategory(null);
-    console.log('>>>>>---- isAddingNewCategory', isAddingNewCategory);
   };
 
   const editCategory = async (category: CategoryType) => {
