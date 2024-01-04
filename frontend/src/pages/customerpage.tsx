@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import AppointmentSection from '../components/appointmentSection';
 import AddEditCustomerModal from '../components/add-edit-customerModal';
 import { CustomerType } from '../types/types';
+import { useCustomers } from '../hooks/useCustomer';
 
 export default function CustomerPage() {
   const { mutate } = useSWRConfig();
@@ -20,23 +21,18 @@ export default function CustomerPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredCustomers, setFilteredCustomers] = useState([]);
 
-  const fetcher = async () => {
-    const response = await axios.get('http://localhost:5100/customers');
-    return response.data;
-  };
-
-  const { data, error } = useSWR('customers', fetcher);
+  const { fetchCustomers, isLoading, isError } = useCustomers();
 
   useEffect(() => {
-    if (data && data.length > 0) {
-      setSelectedCustomer(data[0]);
-      setFilteredCustomers(data);
+    if (fetchCustomers && fetchCustomers.length > 0) {
+      setSelectedCustomer(fetchCustomers[0]);
+      setFilteredCustomers(fetchCustomers);
     }
-  }, [data]);
+  }, [fetchCustomers]);
 
   useEffect(() => {
-    if (data) {
-      const filtered = data.filter(
+    if (fetchCustomers) {
+      const filtered = fetchCustomers.filter(
         (customer: CustomerType) =>
           customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,10 +40,10 @@ export default function CustomerPage() {
       );
       setFilteredCustomers(filtered);
     }
-  }, [searchTerm, data]);
+  }, [searchTerm, fetchCustomers]);
 
-  if (error) return <div>Error: {error.message}</div>;
-  if (!data) return <div>Loading...</div>;
+  if (isError) return <div>Error: {isError.message}</div>;
+  if (isLoading) return <div>Loading...</div>;
 
   // 고객리스트에서 선택된 고객의 정보 destructuring
   const { firstName, lastName, mobile, email, createdAt } =
@@ -126,7 +122,9 @@ export default function CustomerPage() {
       <div className='flex'>
         <div className='w-1/4'>
           <div className='p-4 bg-gray-100'>
-            <h2 className='font-bold text-right'>{data.length} customers</h2>
+            <h2 className='font-bold text-right'>
+              {fetchCustomers.length} customers
+            </h2>
             <h3 className='font-semi text-slate-400'>
               {filteredCustomers.length} are selected
             </h3>

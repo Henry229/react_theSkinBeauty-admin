@@ -8,6 +8,16 @@ export const getServices = async (req, res) => {
       include: {
         category: true,
       },
+      orderBy: [
+        {
+          category: {
+            name: 'asc',
+          },
+        },
+        {
+          name: 'asc',
+        },
+      ],
     });
     res.status(200).json(response);
   } catch (error) {

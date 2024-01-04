@@ -7,25 +7,19 @@ import toast from 'react-hot-toast';
 
 import { ServiceType } from '../types/types';
 import AddEditServiceModal from '../components/add-edit-serviceModal';
+import { useServices } from '../hooks/useSerivces';
 
 export default function ServicePage() {
   const { mutate } = useSWRConfig();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [services, setServices] = useState<ServiceType[]>([]);
+  // const [services, setServices] = useState<ServiceType[]>([]);
   const [selectedService, setSelectedService] = useState<ServiceType | null>(
     null
   );
   const [isAddingNewService, setIsAddingNewService] = useState(false);
 
-  const fetchServices = async () => {
-    const response = await axios.get('http://localhost:5100/services');
-    setServices(response.data);
-  };
-
-  // const categories = axios.get('http://localhost:5100/categories');
-
-  const { data, error } = useSWR('services', fetchServices);
+  const { services, isLoading, isError } = useServices();
 
   const handleAddServiceClick = () => {
     setModalOpen(true);
@@ -55,6 +49,9 @@ export default function ServicePage() {
     setIsAddingNewService(false);
     setSelectedService(null);
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading services.</div>;
 
   return (
     <div className='container px-4 mx-auto'>
@@ -98,38 +95,41 @@ export default function ServicePage() {
             </tr>
           </thead>
           <tbody className='block md:table-row-group'>
-            {services.map((service) => (
-              <tr
-                key={service.id}
-                className='flex-col mb-2 md:border md:border-gray-200 md:table-row flex-no wrap sm:table-row md:mb-0'
-              >
-                <td className='block p-3 md:table-cell'>{service.name}</td>
-                <td className='block p-3 md:table-cell'>
-                  {service.category.name}
-                </td>
-                <td className='block p-3 md:table-cell'>{service.price}</td>
-                <td className='block p-3 md:table-cell'>{service.duration}</td>
-                <td className='block p-3 md:table-cell'>
-                  {service.createdAt
-                    ? format(service.createdAt, 'yyyy/MM/dd')
-                    : 'Unknown'}
-                </td>
-                <td className='block p-3 space-x-2 md:table-cell'>
-                  <button
-                    className='mr-2 text-gray-600 hover:text-gray-900'
-                    onClick={() => editService(service)}
-                  >
-                    <FaEdit className='w-5 h-5' />
-                  </button>
-                  <button
-                    className='text-red-600 hover:text-red-900'
-                    onClick={() => deleteService(service.id)}
-                  >
-                    <FaTrash className='w-5 h-5' />
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {services &&
+              services.map((service: ServiceType) => (
+                <tr
+                  key={service.id}
+                  className='flex-col mb-2 md:border md:border-gray-200 md:table-row flex-no wrap sm:table-row md:mb-0'
+                >
+                  <td className='block p-3 md:table-cell'>{service.name}</td>
+                  <td className='block p-3 md:table-cell'>
+                    {service.category.name}
+                  </td>
+                  <td className='block p-3 md:table-cell'>{service.price}</td>
+                  <td className='block p-3 md:table-cell'>
+                    {service.duration}
+                  </td>
+                  <td className='block p-3 md:table-cell'>
+                    {service.createdAt
+                      ? format(service.createdAt, 'yyyy/MM/dd')
+                      : 'Unknown'}
+                  </td>
+                  <td className='block p-3 space-x-2 md:table-cell'>
+                    <button
+                      className='mr-2 text-gray-600 hover:text-gray-900'
+                      onClick={() => editService(service)}
+                    >
+                      <FaEdit className='w-5 h-5' />
+                    </button>
+                    <button
+                      className='text-red-600 hover:text-red-900'
+                      onClick={() => deleteService(service.id)}
+                    >
+                      <FaTrash className='w-5 h-5' />
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

@@ -37,6 +37,8 @@ export default function AddEditServiceModal({
 }: AddServiceModalProps) {
   const { mutate } = useSWRConfig();
 
+  console.log('>>>>++++ service: ', service);
+
   const {
     register,
     handleSubmit,

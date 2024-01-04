@@ -4,7 +4,11 @@ const prisma = new PrismaClient();
 
 export const getCustomers = async (req, res) => {
   try {
-    const response = await prisma.customer.findMany();
+    const response = await prisma.customer.findMany({
+      orderBy: {
+        firstName: 'asc',
+      },
+    });
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ msg: error.message });

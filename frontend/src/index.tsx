@@ -9,6 +9,7 @@ import CalendarPage from './pages/calendarpage';
 import CustomerPage from './pages/customerpage';
 import CategoryPage from './pages/categorypage';
 import ServicePage from './pages/servicepage';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import { ClerkProvider, SignIn, SignUp } from '@clerk/clerk-react';
 
