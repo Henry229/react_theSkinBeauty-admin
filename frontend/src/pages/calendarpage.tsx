@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import SearchClient from '../components/searchClient';
 import { useServices } from '../hooks/useSerivces';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { ServiceType } from '../types/types';
+import { CustomerType, ServiceType } from '../types/types';
 
 Modal.setAppElement('#root');
 
@@ -93,6 +93,7 @@ export default function CalendarPage() {
   const [selectedDuration, setSelectedDuration] = useState<OptionType | null>(
     null
   );
+  const [clientSelected, setClientSelected] = useState(false);
 
   const formatSelectedDate = () => {
     if (!selectedEvent) return '';
@@ -120,6 +121,14 @@ export default function CalendarPage() {
     // 모달 상태를 열고 선택된 이벤트(시간)을 설정합니다.
     setSelectedEvent({ start, end });
     setModalIsOpen(true);
+  };
+
+  const handleCustomerSelect = (customer: CustomerType) => {
+    setValue('firstName', customer.firstName);
+    setValue('lastName', customer.lastName);
+    setValue('mobile', customer.mobile);
+    setValue('email', customer.email);
+    setClientSelected(true); // 입력 필드 비활성화
   };
 
   // 폼 제출 처리 함수
@@ -157,14 +166,19 @@ export default function CalendarPage() {
       >
         <h2 className='mb-4 text-2xl font-semibold'>Add Appointment</h2>
         <p className='mb-4 text-lg'>{formatSelectedDate()}</p>
-        <SearchClient />
+
+        <SearchClient onClientSelect={handleCustomerSelect} />
+
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div className='p-4 bg-gray-100 border-2 border-gray-300 rounded'>
             <div className='flex flex-col md:flex-row md:space-x-4'>
               <input
                 {...register('firstName')}
+                disabled={clientSelected}
                 placeholder='First Name'
-                className='flex-1 block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50'
+                className={`flex-1 block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50 ${
+                  clientSelected ? 'text-black text-opacity-50' : ''
+                }`}
               />
               {errors.firstName && (
                 <p className='text-sm text-red-500'>
@@ -173,8 +187,11 @@ export default function CalendarPage() {
               )}
               <input
                 {...register('lastName')}
+                disabled={clientSelected}
                 placeholder='Last Name'
-                className='flex-1 block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50'
+                className={`flex-1 block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50 ${
+                  clientSelected ? 'text-black text-opacity-50' : ''
+                }`}
               />
               {errors.lastName && (
                 <p className='text-sm text-red-500'>
@@ -186,7 +203,10 @@ export default function CalendarPage() {
               <input
                 {...register('mobile')}
                 placeholder='Mobile'
-                className='flex-1 block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50'
+                disabled={clientSelected}
+                className={`flex-1 block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50 ${
+                  clientSelected ? 'text-black text-opacity-50' : ''
+                }`}
               />
               {errors.mobile && (
                 <p className='text-sm text-red-500'>{errors.mobile.message}</p>
@@ -194,7 +214,10 @@ export default function CalendarPage() {
               <input
                 {...register('email')}
                 placeholder='Email'
-                className='flex-1 block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50'
+                disabled={clientSelected}
+                className={`flex-1 block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50 ${
+                  clientSelected ? 'text-black text-opacity-50' : ''
+                }`}
               />
               {errors.email && (
                 <p className='text-sm text-red-500'>{errors.email.message}</p>

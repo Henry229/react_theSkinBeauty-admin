@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from 'react';
+import { useState } from 'react';
 import Select, { SingleValue } from 'react-select';
 import OptionTypeBase from 'react-select';
 import { useCustomers } from '../hooks/useCustomer';
@@ -10,7 +10,11 @@ interface OptionType extends OptionTypeBase {
   label: string; // 표시될 문자열
 }
 
-export default function SearchClient() {
+interface SearchClientProps {
+  onClientSelect: (customer: CustomerType) => void;
+}
+
+export default function SearchClient({ onClientSelect }: SearchClientProps) {
   const { fetchCustomers, isLoading, isError } = useCustomers();
   // const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] =
@@ -24,6 +28,13 @@ export default function SearchClient() {
 
   const handleChange = (selectedOption: SingleValue<OptionType>) => {
     setSelectedCustomer(selectedOption);
+    // selectedOption이 존재하면 onCustomerSelect 콜백을 호출합니다.
+    if (selectedOption) {
+      const customer = fetchCustomers.find(
+        (customer: CustomerType) => customer.id === selectedOption.value
+      );
+      if (customer) onClientSelect(customer);
+    }
   };
 
   return (
