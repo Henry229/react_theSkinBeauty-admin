@@ -3,7 +3,7 @@ import Select, { SingleValue } from 'react-select';
 import OptionTypeBase from 'react-select';
 import { useCustomers } from '../hooks/useCustomer';
 import { CustomerType } from '../types/types';
-// import moment from 'moment';
+import { FaSearch } from 'react-icons/fa';
 
 interface OptionType extends OptionTypeBase {
   value: string; // CustomerType.id와 일치하는 타입
@@ -24,46 +24,22 @@ export default function SearchClient() {
 
   const handleChange = (selectedOption: SingleValue<OptionType>) => {
     setSelectedCustomer(selectedOption);
-    // 여기에서 selectedOption.value를 사용하여 추가 작업을 수행할 수 있습니다.
   };
 
-  // const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-  //   setSearchTerm(event.target.value);
-  // };
-
-  // const handleCustomerSelect = (customer: CustomerType) => {
-  //   if (fetchCustomers) {
-  //     const filtered = fetchCustomers.filter(
-  //       (customer: CustomerType) =>
-  //         customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         customer.mobile.includes(searchTerm)
-  //     );
-  //     setFilteredCustomers(filtered);
-  //   }
-  //   setSelectedCustomer(customer);
-  //   setSearchTerm('');
-  // }
-
   return (
-    <Select
-      options={options}
-      value={selectedCustomer as OptionType}
-      onChange={handleChange}
-      isLoading={isLoading}
-      isClearable
-      isSearchable
-      placeholder='Search by name or mobile'
-      noOptionsMessage={() => 'No customers found'}
-    />
-    // <div>
-    //   <input
-    //       type="text"
-    //       placeholder="Search by name or mobile"
-    //       value={searchTerm}
-    //       onChange={handleSearchChange}
-    //       className="block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm"
-    //     />
-    // </div>
+    <div className='flex items-center justify-start mt-2 mb-4 space-x-1'>
+      <Select
+        options={options}
+        value={selectedCustomer as OptionType}
+        onChange={handleChange}
+        isLoading={isLoading}
+        isClearable
+        isSearchable
+        placeholder='Search by name or mobile'
+        noOptionsMessage={() => 'No customers found'}
+        className='w-full lg:w-1/2'
+      />
+      <FaSearch className='w-8 h-8 p-1 text-white bg-gray-500 rounded-sm' />
+    </div>
   );
 }

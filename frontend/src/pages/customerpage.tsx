@@ -5,8 +5,8 @@ import { format } from 'date-fns';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
-import AppointmentSection from '../components/appointmentSection';
 import AddEditCustomerModal from '../components/add-edit-customerModal';
+import AppointmentSection from '../components/appointmentSection';
 import { CustomerType } from '../types/types';
 import { useCustomers } from '../hooks/useCustomer';
 
