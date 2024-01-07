@@ -1,7 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import Select from 'react-select';
-import { OptionsOrGroups, GroupBase } from 'react-select';
+import { OptionsOrGroups, GroupBase, SingleValue } from 'react-select';
 import moment from 'moment';
 import Modal from 'react-modal';
 import { z } from 'zod';
@@ -75,7 +75,7 @@ export default function CalendarPage() {
     resolver: zodResolver(formSchema),
   });
 
-  const selectedService = watch('service');
+  // const selectedService = watch('service');
 
   const timePick: OptionsOrGroups<
     OptionType,
@@ -94,6 +94,12 @@ export default function CalendarPage() {
     null
   );
   const [clientSelected, setClientSelected] = useState(false);
+  const [serviceSelected, setServiceSelected] = useState<OptionType | null>(
+    null
+  );
+  const [selectedService, setSelectedService] = useState<OptionType | null>(
+    null
+  );
 
   const formatSelectedDate = () => {
     if (!selectedEvent) return '';
@@ -110,7 +116,7 @@ export default function CalendarPage() {
     label: string;
   }
 
-  const serviceOptions =
+  const serviceOptions: OptionType[] =
     services?.map((service: ServiceType) => ({
       value: service.id,
       label: service.name,
@@ -130,9 +136,47 @@ export default function CalendarPage() {
     setValue('email', customer.email);
     setClientSelected(true); // 입력 필드 비활성화
   };
+  // 분을 시간 포맷으로 변환하는 함수
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins
+      .toString()
+      .padStart(2, '0')}`;
+  };
+
+  const handleServiceChange = (selectedOption: SingleValue<OptionType>) => {
+    setSelectedService(selectedOption);
+    if (selectedOption) {
+      const service = services.find(
+        (service: CustomerType) => service.id === selectedOption.value
+      );
+      if (service) {
+        setValue('service', service?.name);
+        const formattedDuration = formatDuration(service.duration);
+        setValue('duration', formattedDuration);
+        setValue('price', service?.price.toString());
+
+        setServiceSelected(selectedOption as OptionType);
+        setSelectedDuration({
+          value: formattedDuration,
+          label: formattedDuration,
+        });
+      }
+    } else {
+      // 선택이 취소되면 모든 필드를 초기화합니다.
+      setValue('service', '');
+      setValue('duration', '');
+      setValue('price', 0);
+      setServiceSelected(null);
+      setSelectedDuration(null);
+    }
+  };
 
   // 폼 제출 처리 함수
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
+    console.log('>>>>data: ', data);
+
     //   const customerName = (
     //     event.currentTarget.elements.namedItem('customerName') as HTMLInputElement
     //   ).value;
@@ -215,7 +259,7 @@ export default function CalendarPage() {
                 {...register('email')}
                 placeholder='Email'
                 disabled={clientSelected}
-                className={`flex-1 block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50 ${
+                className={`flex-1 sm:w-full block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50 ${
                   clientSelected ? 'text-black text-opacity-50' : ''
                 }`}
               />
@@ -233,12 +277,21 @@ export default function CalendarPage() {
                   {...field}
                   options={serviceOptions}
                   placeholder='Select service'
-                  onChange={(selectedOption) => {
-                    selectedOption && selectedOption
-                      ? setValue('service', selectedOption)
-                      : setValue('service', '');
-                  }}
-                  className='w-full'
+                  value={serviceSelected}
+                  onChange={handleServiceChange}
+                  // onChange={(selectedOption) => {
+                  //   setServiceSelected(selectedOption as OptionType);
+                  //   setValue(
+                  //     'service',
+                  //     selectedOption ? selectedOption.value : ''
+                  //   );
+                  // }}
+                  // onChange={(selectedOption) => {
+                  //   selectedOption && selectedOption
+                  //     ? setValue('service', selectedOption)
+                  //     : setValue('service', '');
+                  // }}
+                  className='flex-1 sm:w-full '
                   styles={{
                     placeholder: (provided) => ({
                       ...provided,
@@ -266,12 +319,16 @@ export default function CalendarPage() {
                 <Select
                   {...field}
                   options={timePick}
-                  value={selectedOption} // 선택된 옵션의 객체를 사용하거나, 선택이 없는 경우 null이나 undefined를 사용
+                  value={
+                    field.value
+                      ? { label: field.value, value: field.value }
+                      : null
+                  } // 선택된 옵션의 객체를 사용하거나, 선택이 없는 경우 null이나 undefined를 사용
                   onChange={(option) => {
-                    field.onChange(option);
+                    field.onChange(option ? option.value : '');
                     setSelectedOption(option as OptionType); // 현재 선택된 옵션을 state에 저장
                   }}
-                  className='w-full basic-single'
+                  className='flex-1 basic-single sm:w-full '
                   classNamePrefix='select'
                   placeholder='Select time'
                   styles={{
@@ -308,7 +365,7 @@ export default function CalendarPage() {
                     field.onChange(option);
                     setSelectedDuration(option as OptionType);
                   }}
-                  className='w-full basic-single'
+                  className='flex-1 basic-single sm:w-full '
                   classNamePrefix='select'
                   placeholder='Select duration'
                   styles={{
@@ -331,11 +388,14 @@ export default function CalendarPage() {
             {errors.duration && (
               <p className='text-sm text-red-500'>{errors.duration.message}</p>
             )}
-            <input
-              {...register('price')}
-              placeholder='$100'
-              className='block w-full p-2 mt-1 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50'
-            />
+            <div className='flex items-center flex-1 sm:w-full '>
+              <span className='text-lg'>$</span>
+              <input
+                {...register('price')}
+                placeholder='$100'
+                className='block w-full p-2 mt-1 ml-2 border border-gray-300 rounded shadow-sm placeholder:text-sm placeholder:opacity-50'
+              />
+            </div>
           </div>
           <div className='flex items-center justify-end gap-2 '>
             <button

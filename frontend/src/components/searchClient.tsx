@@ -4,6 +4,7 @@ import OptionTypeBase from 'react-select';
 import { useCustomers } from '../hooks/useCustomer';
 import { CustomerType } from '../types/types';
 import { FaSearch } from 'react-icons/fa';
+import useCustomerSelect from '../hooks/useCustomerSelect';
 
 interface OptionType extends OptionTypeBase {
   value: string; // CustomerType.id와 일치하는 타입
@@ -17,6 +18,7 @@ interface SearchClientProps {
 export default function SearchClient({ onClientSelect }: SearchClientProps) {
   const { fetchCustomers, isLoading, isError } = useCustomers();
   // const [searchTerm, setSearchTerm] = useState('');
+  const { selectCustomer } = useCustomerSelect();
   const [selectedCustomer, setSelectedCustomer] =
     useState<SingleValue<OptionType>>(null);
 
@@ -27,13 +29,18 @@ export default function SearchClient({ onClientSelect }: SearchClientProps) {
     })) || [];
 
   const handleChange = (selectedOption: SingleValue<OptionType>) => {
-    setSelectedCustomer(selectedOption);
+    // setSelectedCustomer(selectedOption);
     // selectedOption이 존재하면 onCustomerSelect 콜백을 호출합니다.
+    // if (selectedOption) {
+    //   const customer = fetchCustomers.find(
+    //     (customer: CustomerType) => customer.id === selectedOption.value
+    //   );
+    //   if (customer) onClientSelect(customer);
+    // }
     if (selectedOption) {
-      const customer = fetchCustomers.find(
-        (customer: CustomerType) => customer.id === selectedOption.value
-      );
-      if (customer) onClientSelect(customer);
+      selectCustomer(selectedOption.value);
+    } else {
+      selectCustomer('');
     }
   };
 

@@ -17,21 +17,26 @@ model Customer {
   lastName        String
   mobile          String
   email           String
-  bookDate        Book[]     @relation("CustomerToBook")
+  books           Book[]     @relation("CustomerToBook")
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 }
 
 model Book {
   id              String    @id @default(uuid())
-  customer        Customer  @relation("CustomerToBook", fields: [customerId], references: [id])
   customerId      String
+  customer        Customer  @relation("CustomerToBook", fields: [customerId], references: [id])
+  serviceId       String
+  service         Service   @relation("BookToService", fields: [serviceId], references: [id])
   startDate       DateTime
   endDate         DateTime
+  realDuration    Float
+  realPrice       Float
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
   @@index([customerId])
+  @@index([serviceId])
 }
 
 model Category {
@@ -49,6 +54,7 @@ model Service {
   duration        Float
   categoryId      String
   category        Category  @relation("CategoryToService", fields: [categoryId], references: [id])
+  books           Book[]    @relation("BookToService")
   // orderItems     OrderItem[] @relation("ServiceToOrderItem")
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
