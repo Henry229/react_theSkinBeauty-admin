@@ -6,20 +6,23 @@ import { CustomerType } from '../types/types';
 import { FaSearch } from 'react-icons/fa';
 import useCustomerSelect from '../hooks/useCustomerSelect';
 
-interface OptionType extends OptionTypeBase {
+// interface OptionType extends OptionTypeBase {
+interface OptionType {
   value: string; // CustomerType.id와 일치하는 타입
   label: string; // 표시될 문자열
 }
 
-interface SearchClientProps {
-  onClientSelect: (customer: CustomerType) => void;
-}
+// interface SearchClientProps {
+//   onClientSelect: (customer: CustomerType) => void;
+// }
 
-export default function SearchClient({ onClientSelect }: SearchClientProps) {
-  const { fetchCustomers, isLoading, isError } = useCustomers();
+export default function SearchClient() {
+  const { fetchCustomers, isLoading } = useCustomers();
+  const { selectCustomer: selectCustomerRaw } = useCustomerSelect();
+  const selectCustomer = selectCustomerRaw as (customerId: string) => void; // 타입 단언 사용
   // const [searchTerm, setSearchTerm] = useState('');
-  const { selectCustomer } = useCustomerSelect();
-  const [selectedCustomer, setSelectedCustomer] =
+  // const { selectCustomer } = useCustomerSelect();
+  const [selectedClient, setSelectedClient] =
     useState<SingleValue<OptionType>>(null);
 
   const options: OptionType[] =
@@ -37,18 +40,20 @@ export default function SearchClient({ onClientSelect }: SearchClientProps) {
     //   );
     //   if (customer) onClientSelect(customer);
     // }
+    setSelectedClient(selectedOption);
     if (selectedOption) {
       selectCustomer(selectedOption.value);
     } else {
       selectCustomer('');
     }
+    console.log('>>>>selectedOption: ', selectedOption, '/', selectedClient);
   };
 
   return (
     <div className='flex items-center justify-start mt-2 mb-4 space-x-1'>
       <Select
         options={options}
-        value={selectedCustomer as OptionType}
+        value={selectedClient}
         onChange={handleChange}
         isLoading={isLoading}
         isClearable

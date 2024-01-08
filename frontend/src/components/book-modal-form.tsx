@@ -2,22 +2,34 @@
 // import { Calendar, momentLocalizer } from 'react-big-calendar';
 // import Modal from 'react-modal';
 // import moment from 'moment';
+import { useEffect, useState } from 'react';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Select from 'react-select';
+import { SingleValue } from 'react-select';
 
 import { CustomerType, ServiceType } from '../types/types';
 
 import { useServices } from '../hooks/useSerivces';
 import useCustomerSelect from '../hooks/useCustomerSelect';
 import { FormSchemaType, formSchema } from '../config/formSchema';
-import { useEffect, useState } from 'react';
+import { OptionType, SlotInfo } from '../types/optionType';
+import {
+  serviceOptions,
+  timeOption,
+  durationOptions,
+} from '../utils/optionUtils';
+import { formatDuration } from '../utils/calendarUtils';
 
 interface BookModalFormProps {
   closeModal: () => void;
+  setModalIsOpen: (isOpen: boolean) => void;
 }
 
-export default function BookModalForm({ closeModal }: BookModalFormProps) {
+export default function BookModalForm({
+  closeModal,
+  setModalIsOpen,
+}: BookModalFormProps): JSX.Element {
   const {
     control,
     register,
@@ -29,10 +41,25 @@ export default function BookModalForm({ closeModal }: BookModalFormProps) {
   });
 
   const { services } = useServices();
-  const { selectedCustomer } = useCustomerSelect();
+  const { selectedCustomer: selectedCustomerRaw } = useCustomerSelect();
+  const selectedCustomer = selectedCustomerRaw as CustomerType | null; // 타입 단언 사용
   const [clientSelected, setClientSelected] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
+  const [serviceOptionArray, setServiceOptionArray] = useState<OptionType[]>(
+    []
+  );
+  const [selectedService, setSelectedService] = useState<OptionType | null>(
+    null
+  );
+  const [serviceSelected, setServiceSelected] = useState<OptionType | null>(
+    null
+  );
+  const [selectedDuration, setSelectedDuration] = useState<OptionType | null>(
+    null
+  );
 
   useEffect(() => {
+    console.log('+++++ selectedCustomer: ', selectedCustomer);
     if (selectedCustomer) {
       setValue('firstName', selectedCustomer.firstName);
       setValue('lastName', selectedCustomer.lastName);
@@ -48,8 +75,47 @@ export default function BookModalForm({ closeModal }: BookModalFormProps) {
     }
   }, [selectedCustomer, setValue]);
 
-  const onSubmit: SubmitHandler<FormSchemaType> = (data) => {
-    console.log(data);
+  useEffect(() => {
+    if (services) {
+      const options = serviceOptions(services);
+      setServiceOptionArray(options);
+    }
+  }, [services]);
+
+  const handleServiceChange = (selectedOption: SingleValue<OptionType>) => {
+    setSelectedService(selectedOption);
+    if (selectedOption) {
+      const service = services.find(
+        (service: ServiceType) => service.id === selectedOption.value
+      );
+      if (service) {
+        setValue('service', service?.name);
+        const formattedDuration = formatDuration(service.duration);
+        setValue('duration', formattedDuration);
+        setValue('price', service?.price.toString());
+
+        setServiceSelected(selectedOption as OptionType);
+        setSelectedDuration({
+          value: formattedDuration,
+          label: formattedDuration,
+        });
+      }
+    } else {
+      // 선택이 취소되면 모든 필드를 초기화합니다.
+      setValue('service', '');
+      setValue('duration', '');
+      setValue('price', 0);
+      setServiceSelected(null);
+      setSelectedDuration(null);
+
+      const onSubmit: SubmitHandler<FormSchemaType> = (data) => {
+        console.log(data);
+      };
+    }
+  };
+
+  const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
+    console.log('>>>>data: ', data);
   };
 
   return (
@@ -111,22 +177,10 @@ export default function BookModalForm({ closeModal }: BookModalFormProps) {
           render={({ field }) => (
             <Select
               {...field}
-              options={serviceOptions}
+              options={serviceOptionArray}
               placeholder='Select service'
               value={serviceSelected}
               onChange={handleServiceChange}
-              // onChange={(selectedOption) => {
-              //   setServiceSelected(selectedOption as OptionType);
-              //   setValue(
-              //     'service',
-              //     selectedOption ? selectedOption.value : ''
-              //   );
-              // }}
-              // onChange={(selectedOption) => {
-              //   selectedOption && selectedOption
-              //     ? setValue('service', selectedOption)
-              //     : setValue('service', '');
-              // }}
               className='flex-1 sm:w-full '
               styles={{
                 placeholder: (provided) => ({
@@ -138,7 +192,7 @@ export default function BookModalForm({ closeModal }: BookModalFormProps) {
                   ...provided,
                   borderColor: '#d1d5db', // Tailwind 'border-gray-300' equivalent
                   '&:hover': {
-                    borderColor: '#d1d5db', // Tailwind 'border-gray-300' equivalent
+                    borderColor: '#d1d5db',
                   },
                 }),
               }}
@@ -154,7 +208,7 @@ export default function BookModalForm({ closeModal }: BookModalFormProps) {
           render={({ field }) => (
             <Select
               {...field}
-              options={timePick}
+              options={timeOption}
               value={
                 field.value ? { label: field.value, value: field.value } : null
               } // 선택된 옵션의 객체를 사용하거나, 선택이 없는 경우 null이나 undefined를 사용
