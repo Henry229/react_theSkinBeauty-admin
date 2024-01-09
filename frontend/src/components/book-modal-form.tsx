@@ -1,4 +1,4 @@
-// import axios from 'axios';
+import axios from 'axios';
 // import { Calendar, momentLocalizer } from 'react-big-calendar';
 // import Modal from 'react-modal';
 // import moment from 'moment';
@@ -13,23 +13,31 @@ import { CustomerType, ServiceType } from '../types/types';
 import { useServices } from '../hooks/useSerivces';
 import useCustomerSelect from '../hooks/useCustomerSelect';
 import { FormSchemaType, formSchema } from '../config/formSchema';
-import { OptionType, SlotInfo } from '../types/optionType';
+import { OptionType, CalendarEvent } from '../types/optionType';
 import {
   serviceOptions,
   timeOption,
   durationOptions,
 } from '../utils/optionUtils';
 import { formatDuration } from '../utils/calendarUtils';
+import {
+  calculateEndDate,
+  createStartDate,
+  getMinutesFromDuration,
+} from '../utils/dateUtils';
+import toast from 'react-hot-toast';
 
 interface BookModalFormProps {
   closeModal: () => void;
   setModalIsOpen: (isOpen: boolean) => void;
+  selectedEvent: CalendarEvent | null;
 }
 
 export default function BookModalForm({
   closeModal,
   setModalIsOpen,
-}: BookModalFormProps): JSX.Element {
+  selectedEvent,
+}: BookModalFormProps) {
   const {
     control,
     register,
@@ -107,15 +115,70 @@ export default function BookModalForm({
       setValue('price', 0);
       setServiceSelected(null);
       setSelectedDuration(null);
-
-      const onSubmit: SubmitHandler<FormSchemaType> = (data) => {
-        console.log(data);
-      };
     }
   };
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     console.log('>>>>data: ', data);
+    try {
+      // 폼에서 받은 데이터와 함께 추가적으로 필요한 정보를 구성합니다.
+      if (
+        !selectedEvent?.start ||
+        !selectedCustomer?.id ||
+        !serviceSelected?.value
+      ) {
+        console.error('Missing required booking information');
+        // 필요한 경우 추가적인 사용자 알림이나 오류 처리를 수행합니다.
+        return;
+      }
+      // 예약 시작 시간을 생성합니다.
+      const startDate = createStartDate({
+        date: selectedEvent.start,
+        time: data.appointmentTime,
+      });
+
+      if (!startDate) {
+        console.error('Invalid start date : ');
+        return; // startDate가 유효하지 않으면 함수 실행을 중단합니다.
+      }
+      // 예약 종료 시간을 계산합니다.
+      console.log('>>>>+++++ selectedDuration: ', selectedDuration);
+      const durationInMinutes = getMinutesFromDuration(selectedDuration!.label);
+
+      const endDate = calculateEndDate({
+        startDate: startDate,
+        // durationInMinutes: parseInt(selectedDuration?.value || '0'),
+        durationInMinutes: durationInMinutes,
+      });
+
+      console.log('>>>>+++++ endDate: ', endDate);
+
+      const newBookingData = {
+        customerId: selectedCustomer?.id, // selectedCustomer에서 ID를 가져옵니다. 여기서 단언이 아닌 옵셔널 체이닝을 사용하고 있습니다.
+        serviceId: serviceSelected?.value, // 선택된 서비스에서 ID를 가져옵니다.
+        startDate: startDate, // 사용자가 선택한 예약 시작 시간
+        endDate: endDate, // 예약 종료 시간을 계산하는 함수를 사용해야 합니다.
+        realDuration: selectedDuration ? selectedDuration.label : '', // 실제 지속 시간
+        // realDuration: parseFloat(selectedDuration?.value || '0'), // 실제 지속 시간
+        realPrice: data.price, // 실제 가격
+        // 기타 필요한 데이터...
+      };
+
+      // 서버로 POST 요청을 보냅니다.
+      const response = await axios.post(
+        'http://localhost:5100/books',
+        newBookingData
+      );
+
+      // 요청 성공 처리...\
+      toast.success('Appointment booked successfully');
+      console.log('Booking created successfully:', response.data);
+      closeModal(); // 모달 닫기
+    } catch (error) {
+      // 에러 처리...
+      toast.error('An error occurred while creating the booking data');
+      console.error('Failed to create booking:', error);
+    }
   };
 
   return (
@@ -248,9 +311,12 @@ export default function BookModalForm({
             <Select
               {...field}
               options={durationOptions}
-              value={selectedDuration}
+              value={
+                field.value ? { label: field.value, value: field.value } : null
+              }
+              // value={selectedDuration}
               onChange={(option) => {
-                field.onChange(option);
+                field.onChange(option ? option.value : '');
                 setSelectedDuration(option as OptionType);
               }}
               className='flex-1 basic-single sm:w-full '

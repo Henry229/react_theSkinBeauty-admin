@@ -41,3 +41,7 @@ Content-Type: application/json
 
 #### service
 GET http://localhost:5100/services
+
+
+#### books
+GET http://localhost:5100/books

@@ -4,7 +4,7 @@ import { Calendar } from 'react-big-calendar';
 import Modal from 'react-modal';
 import moment from 'moment';
 
-import { OptionType, SlotInfo } from '../types/optionType';
+import { OptionType, SlotInfo, CalendarEvent } from '../types/optionType';
 
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { OptionsOrGroups, GroupBase, SingleValue } from 'react-select';
@@ -21,15 +21,23 @@ import BookModalForm from '../components/book-modal-form';
 
 Modal.setAppElement('#root');
 
-// Event 타입을 정의합니다.
-interface Event {
-  start: Date;
-  end: Date;
-}
+// // Event 타입을 정의합니다.
+// interface Event {
+//   start: Date;
+//   end: Date;
+// }
+
+// CalendarEvent 타입을 정의합니다.
+// interface CalendarEvent {
+//   start: Date;
+//   end: Date;
+// }
 
 export default function CalendarPage() {
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null
+  );
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<OptionType | null>(
     null
@@ -122,9 +130,9 @@ export default function CalendarPage() {
         <SearchClient />
 
         <BookModalForm
-          // selectEvent={selectedEvent}
           closeModal={() => setModalIsOpen(false)}
           setModalIsOpen={setModalIsOpen}
+          selectedEvent={selectedEvent}
         />
       </Modal>
     </>
