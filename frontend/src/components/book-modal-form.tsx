@@ -13,7 +13,7 @@ import { CustomerType, ServiceType } from '../types/types';
 import { useServices } from '../hooks/useSerivces';
 import useCustomerSelect from '../hooks/useCustomerSelect';
 import { FormSchemaType, formSchema } from '../config/formSchema';
-import { OptionType, CalendarEvent } from '../types/optionType';
+import { OptionType, MyCalendarEvent } from '../types/optionType';
 import {
   serviceOptions,
   timeOption,
@@ -26,11 +26,12 @@ import {
   getMinutesFromDuration,
 } from '../utils/dateUtils';
 import toast from 'react-hot-toast';
+import { mutate } from 'swr';
 
 interface BookModalFormProps {
   closeModal: () => void;
   setModalIsOpen: (isOpen: boolean) => void;
-  selectedEvent: CalendarEvent | null;
+  selectedEvent: MyCalendarEvent | null;
 }
 
 export default function BookModalForm({
@@ -49,8 +50,8 @@ export default function BookModalForm({
   });
 
   const { services } = useServices();
-  const { selectedCustomer: selectedCustomerRaw } = useCustomerSelect();
-  const selectedCustomer = selectedCustomerRaw as CustomerType | null; // 타입 단언 사용
+  const { selectedCustomer } = useCustomerSelect();
+  // const selectedCustomer = selectedCustomerRaw as CustomerType | null; // 타입 단언 사용
   const [clientSelected, setClientSelected] = useState(false);
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
   const [serviceOptionArray, setServiceOptionArray] = useState<OptionType[]>(
@@ -118,12 +119,21 @@ export default function BookModalForm({
     }
   };
 
+  const handleAddCustomer = async () => {
+    // const response = await axios.post(
+    //   'http://localhost:5100/customers',
+    //   data
+    // );
+    // updatedCustomer = response.data;
+    // toast.success('Updated customer data successfully');
+  };
+
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     console.log('>>>>data: ', data);
     try {
       // 폼에서 받은 데이터와 함께 추가적으로 필요한 정보를 구성합니다.
       if (
-        !selectedEvent?.start ||
+        !selectedEvent?.startDate ||
         !selectedCustomer?.id ||
         !serviceSelected?.value
       ) {
@@ -133,7 +143,7 @@ export default function BookModalForm({
       }
       // 예약 시작 시간을 생성합니다.
       const startDate = createStartDate({
-        date: selectedEvent.start,
+        date: new Date(selectedEvent.startDate),
         time: data.appointmentTime,
       });
 
@@ -172,6 +182,7 @@ export default function BookModalForm({
 
       // 요청 성공 처리...\
       toast.success('Appointment booked successfully');
+      mutate('fetchBooks');
       console.log('Booking created successfully:', response.data);
       closeModal(); // 모달 닫기
     } catch (error) {
@@ -232,6 +243,17 @@ export default function BookModalForm({
             <p className='text-sm text-red-500'>{errors.email.message}</p>
           )}
         </div>
+        {!clientSelected && (
+          <div className='flex justify-end mt-4'>
+            <button
+              type='button' // 폼 제출이 아닌 일반 버튼으로 설정
+              onClick={handleAddCustomer}
+              className='px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700'
+            >
+              Add Customer
+            </button>
+          </div>
+        )}
       </div>
       <div className='flex flex-col items-center gap-2 p-2 border-2 rounded md:flex-row md:space-x-4 border-slate-300 bg-slate-100'>
         <Controller
@@ -353,7 +375,7 @@ export default function BookModalForm({
       </div>
       <div className='flex items-center justify-end gap-2 '>
         <button
-          onClick={() => setModalIsOpen(false)}
+          onClick={closeModal}
           className='flex items-center justify-center px-4 py-2 text-black bg-white border-2 border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500'
         >
           Cancel

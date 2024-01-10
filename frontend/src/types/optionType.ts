@@ -9,7 +9,15 @@ export type SlotInfo = {
 };
 
 // CalendarEvent 타입을 정의합니다.
-export interface CalendarEvent {
-  start: Date;
-  end: Date;
+export interface MyCalendarEvent {
+  startDate: string;
+  endDate: string;
+  customerName: {
+    firstName: string;
+    lastName: string;
+  };
+  service: {
+    name: string;
+    price: number;
+  };
 }

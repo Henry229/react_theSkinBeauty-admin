@@ -21,3 +21,14 @@ export type ServiceType = {
   category: CategoryType;
   createdAt: Date;
 };
+
+export type bookType = {
+  id: string;
+  customer: CustomerType;
+  service: ServiceType;
+  startDate: Date;
+  endDate: Date;
+  realDuration: String;
+  realPrice: Number;
+  createdAt: Date;
+};
