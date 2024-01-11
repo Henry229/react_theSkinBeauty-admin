@@ -45,7 +45,9 @@ export default function BookModalForm({
     handleSubmit,
     setValue,
     formState: { errors },
+    watch,
   } = useForm<FormSchemaType>({
+    mode: 'onChange',
     resolver: zodResolver(formSchema),
   });
 
@@ -66,6 +68,13 @@ export default function BookModalForm({
   const [selectedDuration, setSelectedDuration] = useState<OptionType | null>(
     null
   );
+
+  // 신규 고객인지 여부를 판단하는 상태를 watch 함수를 사용하여 추적합니다.
+  // const isNewCustomer = watch('isNewCustomer');
+
+  useEffect(() => {
+    console.log('++++++ clientSelected:', clientSelected);
+  }, [clientSelected]);
 
   useEffect(() => {
     console.log('+++++ selectedCustomer: ', selectedCustomer);
@@ -119,13 +128,23 @@ export default function BookModalForm({
     }
   };
 
-  const handleAddCustomer = async () => {
-    // const response = await axios.post(
-    //   'http://localhost:5100/customers',
-    //   data
-    // );
-    // updatedCustomer = response.data;
-    // toast.success('Updated customer data successfully');
+  const handleAddCustomer = async (data: FormSchemaType) => {
+    const newClient = {
+      firstName: data?.firstName,
+      lastName: data?.lastName,
+      mobile: data?.mobile,
+      email: data?.email,
+    };
+    const response = await axios.post(
+      'http://localhost:5100/customers',
+      newClient
+    );
+    toast.success('Created customer data successfully in Booking Section');
+    mutate('fetchCustomers');
+  };
+
+  const onClickAddCustomer = () => {
+    handleSubmit(handleAddCustomer)();
   };
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
@@ -247,7 +266,7 @@ export default function BookModalForm({
           <div className='flex justify-end mt-4'>
             <button
               type='button' // 폼 제출이 아닌 일반 버튼으로 설정
-              onClick={handleAddCustomer}
+              onClick={onClickAddCustomer}
               className='px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700'
             >
               Add Customer
@@ -256,9 +275,13 @@ export default function BookModalForm({
         )}
       </div>
       <div className='flex flex-col items-center gap-2 p-2 border-2 rounded md:flex-row md:space-x-4 border-slate-300 bg-slate-100'>
+        <pre>console.log({`>>>> !clientSelected: , ${!clientSelected}`})</pre>
         <Controller
           name='service'
           control={control}
+          rules={{
+            required: clientSelected ? undefined : 'Service is required',
+          }} // 신규 고객이 아닌 경우에만 필수로 설정합니다.
           render={({ field }) => (
             <Select
               {...field}
@@ -290,6 +313,7 @@ export default function BookModalForm({
         <Controller
           name='appointmentTime'
           control={control}
+          rules={{ required: clientSelected ? undefined : 'Time is required' }} // 신규 고객이 아닌 경우에만 필수로 설정합니다.
           render={({ field }) => (
             <Select
               {...field}
@@ -329,6 +353,9 @@ export default function BookModalForm({
         <Controller
           name='duration'
           control={control}
+          rules={{
+            required: clientSelected ? undefined : 'Duration is required',
+          }} // 신규 고객이 아닌 경우에만 필수로 설정합니다.
           render={({ field }) => (
             <Select
               {...field}
