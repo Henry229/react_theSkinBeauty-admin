@@ -46,6 +46,8 @@ export default function BookModalForm({
     setValue,
     formState: { errors },
     watch,
+    trigger,
+    getValues,
   } = useForm<FormSchemaType>({
     mode: 'onChange',
     resolver: zodResolver(formSchema),
@@ -143,8 +145,23 @@ export default function BookModalForm({
     mutate('fetchCustomers');
   };
 
-  const onClickAddCustomer = () => {
-    handleSubmit(handleAddCustomer)();
+  const onClickAddCustomer = async () => {
+    // handleSubmit(handleAddCustomer)();
+    const result = await trigger(['firstName', 'lastName', 'mobile', 'email']);
+    if (result) {
+      // 해당 필드가 유효하다면 handleAddCustomer를 호출합니다
+      const customerData = {
+        firstName: getValues('firstName'),
+        lastName: getValues('lastName'),
+        mobile: getValues('mobile'),
+        email: getValues('email'),
+        service: '',
+        appointmentTime: '',
+        price: 0,
+        duration: '',
+      };
+      handleAddCustomer(customerData);
+    }
   };
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
@@ -275,7 +292,7 @@ export default function BookModalForm({
         )}
       </div>
       <div className='flex flex-col items-center gap-2 p-2 border-2 rounded md:flex-row md:space-x-4 border-slate-300 bg-slate-100'>
-        <pre>console.log({`>>>> !clientSelected: , ${!clientSelected}`})</pre>
+        {/* <pre>console.log({`>>>> !clientSelected: , ${!clientSelected}`})</pre> */}
         <Controller
           name='service'
           control={control}
