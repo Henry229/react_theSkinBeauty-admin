@@ -49,7 +49,7 @@ export default function BookModalForm({
     trigger,
     getValues,
   } = useForm<FormSchemaType>({
-    mode: 'onChange',
+    // mode: 'onChange',
     resolver: zodResolver(formSchema),
   });
 
@@ -57,6 +57,8 @@ export default function BookModalForm({
   const { selectedCustomer } = useCustomerSelect();
   // const selectedCustomer = selectedCustomerRaw as CustomerType | null; // 타입 단언 사용
   const [clientSelected, setClientSelected] = useState(false);
+  // 신규 고객을 추가할 수 있는지 여부를 결정하는 상태
+  const [canAddCustomer, setCanAddCustomer] = useState(false);
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
   const [serviceOptionArray, setServiceOptionArray] = useState<OptionType[]>(
     []
@@ -75,8 +77,30 @@ export default function BookModalForm({
   // const isNewCustomer = watch('isNewCustomer');
 
   useEffect(() => {
-    console.log('++++++ clientSelected:', clientSelected);
-  }, [clientSelected]);
+    // 선택된 이벤트가 있을 경우, 폼 필드들을 해당 데이터로 채웁니다.
+    console.log('==== selectedEvent: ', selectedEvent);
+
+    const isCustomerDataEmpty =
+      selectedEvent &&
+      !selectedEvent.book.customer.firstName &&
+      !selectedEvent.book.customer.lastName;
+    setCanAddCustomer(!!isCustomerDataEmpty);
+
+    if (!isCustomerDataEmpty) {
+      setClientSelected(true);
+    }
+
+    if (selectedEvent) {
+      setValue('firstName', selectedEvent.book.customer.firstName);
+      setValue('lastName', selectedEvent.book.customer.lastName);
+      setValue('mobile', selectedEvent.book.customer.mobile);
+      setValue('email', selectedEvent.book.customer.email);
+      setValue('service', selectedEvent.book.service.name);
+      setValue('duration', selectedEvent.book.service.duration);
+      setValue('price', parseFloat(selectedEvent.book.service.price));
+      // ... 다른 필드들도 동일하게 적용
+    }
+  }, [selectedEvent, setValue]);
 
   useEffect(() => {
     console.log('+++++ selectedCustomer: ', selectedCustomer);
@@ -86,14 +110,17 @@ export default function BookModalForm({
       setValue('mobile', selectedCustomer.mobile);
       setValue('email', selectedCustomer.email);
       setClientSelected(true);
-    } else {
-      setValue('firstName', '');
-      setValue('lastName', '');
-      setValue('mobile', '');
-      setValue('email', '');
-      setClientSelected(false);
     }
-  }, [selectedCustomer, setValue]);
+    // } else if (canAddCustomer) {
+    //   console.log('+++++<<<<< selectedEvent: ', selectedEvent);
+
+    //   setValue('firstName', '');
+    //   setValue('lastName', '');
+    //   setValue('mobile', '');
+    //   setValue('email', '');
+    //   setClientSelected(false);
+    // }
+  }, [selectedCustomer, selectedEvent, setValue]);
 
   useEffect(() => {
     if (services) {
@@ -101,6 +128,28 @@ export default function BookModalForm({
       setServiceOptionArray(options);
     }
   }, [services]);
+
+  useEffect(() => {
+    // selectedEvent가 변경될 때마다 실행됩니다.
+    if (selectedEvent && services) {
+      // services 배열에서 selectedEvent의 service ID에 해당하는 서비스 객체를 찾습니다.
+      const matchingService = services.find(
+        (service: ServiceType) => service.id === selectedEvent.book.service.id
+      );
+
+      // 해당 서비스 객체를 사용하여 serviceSelected 상태를 설정합니다.
+      if (matchingService) {
+        const serviceOption = {
+          value: matchingService.id,
+          label: matchingService.name,
+        };
+        setServiceSelected(serviceOption);
+
+        // Controller를 통해 Select 컴포넌트의 값을 설정합니다.
+        setValue('service', serviceOption.label);
+      }
+    }
+  }, [selectedEvent, services, setValue, setServiceSelected]);
 
   const handleServiceChange = (selectedOption: SingleValue<OptionType>) => {
     setSelectedService(selectedOption);
@@ -279,7 +328,7 @@ export default function BookModalForm({
             <p className='text-sm text-red-500'>{errors.email.message}</p>
           )}
         </div>
-        {!clientSelected && (
+        {!clientSelected && canAddCustomer && (
           <div className='flex justify-end mt-4'>
             <button
               type='button' // 폼 제출이 아닌 일반 버튼으로 설정

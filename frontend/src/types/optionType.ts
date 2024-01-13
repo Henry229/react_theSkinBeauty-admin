@@ -1,3 +1,5 @@
+import { bookType } from './types';
+
 export interface OptionType {
   value: string;
   label: string;
@@ -10,14 +12,36 @@ export type SlotInfo = {
 
 // CalendarEvent 타입을 정의합니다.
 export interface MyCalendarEvent {
-  startDate: string;
-  endDate: string;
-  customerName: {
-    firstName: string;
-    lastName: string;
-  };
-  service: {
-    name: string;
-    price: number;
-  };
+  id: string;
+  book: bookType;
+  startDate: Date;
+  endDate: Date;
+  // id: string;
+  // startDate: string;
+  // endDate: string;
+  // customerName: {
+  //   firstName: string;
+  //   lastName: string;
+  // };
+  // mobile: string;
+  // email: string;
+  // service: {
+  //   name: string;
+  //   price: number;
+  // };
 }
+// export interface MyCalendarEvent {
+//   id: string;
+//   startDate: string;
+//   endDate: string;
+//   customerName: {
+//     firstName: string;
+//     lastName: string;
+//   };
+//   mobile: string;
+//   email: string;
+//   service: {
+//     name: string;
+//     price: number;
+//   };
+// }

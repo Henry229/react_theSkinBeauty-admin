@@ -18,28 +18,6 @@ import { useBooks } from '../hooks/useBooks';
 import { bookType } from '../types/types';
 import useCustomerSelect from '../hooks/useCustomerSelect';
 
-// interface MyCalendarEvent {
-//   startDate: string;
-//   endDate: string;
-//   customer: {
-//     firstName: string;
-//     lastName: string;
-//   };
-//   service: {
-//     name: string;
-//     price: number;
-//   };
-// }
-
-// interface CalendarEvent extends Event {
-//   customerName: string;
-//   service: {
-//     name: string;
-//     price: number;
-//   };
-//   startDate: string;
-// }
-
 Modal.setAppElement('#root');
 
 // 사용자 정의 이벤트 컴포넌트
@@ -47,11 +25,11 @@ const CustomEvent: React.FC<{ event: MyCalendarEvent }> = ({ event }) => {
   return (
     <div style={{ fontSize: '0.75rem', whiteSpace: 'normal' }}>
       <strong>
-        {`${event.customerName?.firstName}${event.customerName?.lastName} `}
+        {`${event.book?.customer?.firstName}${event.book?.customer?.lastName} `}
       </strong>
       {moment(event.startDate).format('h:mm A')}
       <br />
-      {event.service.name} - ${event.service.price}
+      {event.book?.service?.name} - ${event.book?.service?.price}
     </div>
   );
 };
@@ -104,31 +82,11 @@ export default function CalendarPage() {
   // 예약 데이터를 캘린더 이벤트 형식에 맞게 변환하는 로직...
   const events: MyCalendarEvent[] =
     books?.map((booking: bookType) => ({
-      customerName: {
-        firstName: booking.customer.firstName,
-        lastName: booking.customer.lastName,
-      },
+      id: booking.id,
+      book: booking,
       start: new Date(booking.startDate),
       end: new Date(booking.endDate),
-      service: {
-        name: booking.service.name,
-        price: booking.service.price,
-      },
     })) || [];
-
-  // const eventStyleGetter = (event, start, end, isSelected) => {
-  //   const style = {
-  //     backgroundColor: "#f0f0f0",
-  //     borderRadius: "0px",
-  //     opacity: 0.8,
-  //     color: 'black',
-  //     border: "0px",
-  //     display: 'block'
-  //   };
-  //   return {
-  //     style: style
-  //   };
-  // };
 
   const formatSelectedDate = () => {
     if (!selectedEvent) return '';
@@ -138,25 +96,54 @@ export default function CalendarPage() {
   const handleSelect = (slotInfo: SlotInfo) => {
     const startDate = slotInfo.start;
     const endDate = slotInfo.end;
-    setSelectedEvent({
-      customerName: {
-        firstName: '',
-        lastName: '',
+    const pickBook: MyCalendarEvent = {
+      id: '',
+      book: {
+        id: '',
+        customer: {
+          id: '',
+          firstName: '',
+          lastName: '',
+          mobile: '',
+          email: '',
+          createdAt: new Date(),
+        },
+        service: {
+          id: '',
+          name: '',
+          price: '',
+          duration: '',
+          category: {
+            id: '',
+            name: '',
+            createdAt: new Date(),
+          },
+          createdAt: new Date(),
+        },
+        startDate: slotInfo.start,
+        endDate: slotInfo.end,
+        realDuration: '',
+        realPrice: 0,
+        createdAt: new Date(),
       },
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      service: {
-        name: '',
-        price: 0,
-      },
-    });
+      startDate: slotInfo.start,
+      endDate: slotInfo.end,
+    };
+    setSelectedEvent(pickBook);
     setModalIsOpen(true);
   };
 
   // 캘린더에서 기존 예약 이벤트를 클릭했을 때 호출되는 함수입니다.
   const handleSelectEvent = (event: MyCalendarEvent) => {
-    setSelectedEvent(event);
-    setModalIsOpen(true);
+    console.log('----> books: ', books);
+
+    const booking = books.find((booking: bookType) => booking.id === event.id);
+    console.log('----> booking: ', booking.id, '/', event.id);
+
+    if (booking) {
+      setSelectedEvent(event);
+      setModalIsOpen(true);
+    }
   };
 
   const closeModal = () => {
