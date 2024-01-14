@@ -29,7 +29,7 @@ const CustomEvent: React.FC<{ event: MyCalendarEvent }> = ({ event }) => {
       </strong>
       {moment(event.start).format('h:mm A')}
       <br />
-      {event.book?.service?.name} - ${event.book?.service?.price}
+      {event.book?.service?.name} - ${String(event.book?.realPrice)}
     </div>
   );
 };

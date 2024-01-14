@@ -103,11 +103,29 @@ export default function BookModalForm({
       setValue('email', selectedEvent.book.customer.email);
       setValue('service', selectedEvent.book.service.name);
       // const duration = formatDuration(Number(selectedEvent.book.realDuration));
-      setValue('duration', selectedEvent.book.realDuration.toString());
+      console.log(
+        '>>>>> type of selectedEvent.book.realDuration: ',
+        typeof selectedEvent.book.realDuration
+      );
+
+      const initialDuration = selectedEvent.book.realDuration.toString();
+      console.log('>>>>> initialDuration: ', initialDuration);
+
+      setValue('duration', initialDuration);
+      setSelectedDuration({
+        value: initialDuration,
+        label: initialDuration,
+      });
+
       setValue('price', selectedEvent.book.realPrice.valueOf());
-      const appointmentTime = moment
-        .utc(selectedEvent.book.startDate)
-        .format('HH:mm');
+      console.log(
+        '### selectedEvent.book.startDate: ',
+        selectedEvent.book.startDate
+      );
+
+      const appointmentTime = moment(selectedEvent.book.startDate).format(
+        'HH:mm'
+      );
       setValue('appointmentTime', appointmentTime);
       // ... 다른 필드들도 동일하게 적용
     }
@@ -219,6 +237,15 @@ export default function BookModalForm({
     }
   };
 
+  const handleDurationChange = (selectedOption: SingleValue<OptionType>) => {
+    setSelectedDuration(selectedOption);
+    if (selectedOption) {
+      setValue('duration', selectedOption.value);
+    } else {
+      setValue('duration', '');
+    }
+  };
+
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     console.log('>>>>data: ', data);
     console.log('++++selectedEvent: ', selectedEvent);
@@ -237,8 +264,9 @@ export default function BookModalForm({
         return;
       }
       // get the duration in minutes
-      console.log('>>>>+++++ selectedDuration: ', selectedDuration);
-      const durationInMinutes = getMinutesFromDuration(selectedDuration!.label);
+      console.log('>>>>+++++ data.duration: ', data.duration);
+      const durationInMinutes = getMinutesFromDuration(data.duration);
+      // const durationInMinutes = getMinutesFromDuration(selectedDuration!.label);
       const endDate = calculateEndDate({
         startDate: startDate,
         durationInMinutes: durationInMinutes,
@@ -471,14 +499,15 @@ export default function BookModalForm({
             <Select
               {...field}
               options={durationOptions}
-              value={
-                field.value ? { label: field.value, value: field.value } : null
-              }
-              // value={selectedDuration}
-              onChange={(option) => {
-                field.onChange(option ? option.value : '');
-                setSelectedDuration(option as OptionType);
-              }}
+              value={selectedDuration}
+              onChange={handleDurationChange}
+              // value={
+              //   field.value ? { label: field.value, value: field.value } : null
+              // }
+              // onChange={(option) => {
+              //   field.onChange(option ? option.value : '');
+              //   setSelectedDuration(option as OptionType);
+              // }}
               className='flex-1 basic-single sm:w-full '
               classNamePrefix='select'
               placeholder='Select duration'
