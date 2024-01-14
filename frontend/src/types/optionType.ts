@@ -14,8 +14,8 @@ export type SlotInfo = {
 export interface MyCalendarEvent {
   id: string;
   book: bookType;
-  startDate: Date;
-  endDate: Date;
+  start: Date;
+  end: Date;
   // id: string;
   // startDate: string;
   // endDate: string;

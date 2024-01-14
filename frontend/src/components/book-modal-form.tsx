@@ -27,6 +27,12 @@ import {
 } from '../utils/dateUtils';
 import toast from 'react-hot-toast';
 import { mutate } from 'swr';
+import moment from 'moment';
+import {
+  createBooking,
+  createCustomer,
+  updateBooking,
+} from '../services/bookingService';
 
 interface BookModalFormProps {
   closeModal: () => void;
@@ -96,8 +102,13 @@ export default function BookModalForm({
       setValue('mobile', selectedEvent.book.customer.mobile);
       setValue('email', selectedEvent.book.customer.email);
       setValue('service', selectedEvent.book.service.name);
-      setValue('duration', selectedEvent.book.service.duration);
-      setValue('price', parseFloat(selectedEvent.book.service.price));
+      // const duration = formatDuration(Number(selectedEvent.book.realDuration));
+      setValue('duration', selectedEvent.book.realDuration.toString());
+      setValue('price', selectedEvent.book.realPrice.valueOf());
+      const appointmentTime = moment
+        .utc(selectedEvent.book.startDate)
+        .format('HH:mm');
+      setValue('appointmentTime', appointmentTime);
       // ... 다른 필드들도 동일하게 적용
     }
   }, [selectedEvent, setValue]);
@@ -186,12 +197,7 @@ export default function BookModalForm({
       mobile: data?.mobile,
       email: data?.email,
     };
-    const response = await axios.post(
-      'http://localhost:5100/customers',
-      newClient
-    );
-    toast.success('Created customer data successfully in Booking Section');
-    mutate('fetchCustomers');
+    createCustomer(newClient);
   };
 
   const onClickAddCustomer = async () => {
@@ -215,65 +221,104 @@ export default function BookModalForm({
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     console.log('>>>>data: ', data);
+    console.log('++++selectedEvent: ', selectedEvent);
+    console.log('++++selectedCustomer.mobile: ', selectedCustomer?.mobile);
+    console.log('++++serviceSelected.value: ', serviceSelected?.value);
+
     try {
-      // 폼에서 받은 데이터와 함께 추가적으로 필요한 정보를 구성합니다.
-      if (
-        !selectedEvent?.startDate ||
-        !selectedCustomer?.id ||
-        !serviceSelected?.value
-      ) {
-        console.error('Missing required booking information');
-        // 필요한 경우 추가적인 사용자 알림이나 오류 처리를 수행합니다.
-        return;
-      }
-      // 예약 시작 시간을 생성합니다.
+      // Create a start date object
       const startDate = createStartDate({
-        date: new Date(selectedEvent.startDate),
+        date: selectedEvent ? new Date(selectedEvent.start) : new Date(),
         time: data.appointmentTime,
       });
 
       if (!startDate) {
         console.error('Invalid start date : ');
-        return; // startDate가 유효하지 않으면 함수 실행을 중단합니다.
+        return;
       }
-      // 예약 종료 시간을 계산합니다.
+      // get the duration in minutes
       console.log('>>>>+++++ selectedDuration: ', selectedDuration);
       const durationInMinutes = getMinutesFromDuration(selectedDuration!.label);
-
       const endDate = calculateEndDate({
         startDate: startDate,
-        // durationInMinutes: parseInt(selectedDuration?.value || '0'),
         durationInMinutes: durationInMinutes,
       });
 
       console.log('>>>>+++++ endDate: ', endDate);
 
-      const newBookingData = {
-        customerId: selectedCustomer?.id, // selectedCustomer에서 ID를 가져옵니다. 여기서 단언이 아닌 옵셔널 체이닝을 사용하고 있습니다.
-        serviceId: serviceSelected?.value, // 선택된 서비스에서 ID를 가져옵니다.
-        startDate: startDate, // 사용자가 선택한 예약 시작 시간
-        endDate: endDate, // 예약 종료 시간을 계산하는 함수를 사용해야 합니다.
-        realDuration: selectedDuration ? selectedDuration.label : '', // 실제 지속 시간
-        // realDuration: parseFloat(selectedDuration?.value || '0'), // 실제 지속 시간
-        realPrice: data.price, // 실제 가격
-        // 기타 필요한 데이터...
-      };
+      // 폼에서 받은 데이터와 함께 추가적으로 필요한 정보를 구성합니다.
+      if (!selectedEvent || !selectedEvent?.id) {
+        // !selectedCustomer?.mobile ||
+        // !serviceSelected?.value
+        // console.error('Missing required booking information');
+        // toast.error('Required booking information is missing');
+        // return;
 
-      // 서버로 POST 요청을 보냅니다.
-      const response = await axios.post(
-        'http://localhost:5100/books',
-        newBookingData
-      );
+        if (selectedCustomer) {
+          const newBookingData = {
+            customerId: selectedCustomer?.id, // selectedCustomer에서 ID를 가져옵니다. 여기서 단언이 아닌 옵셔널 체이닝을 사용하고 있습니다.
+            serviceId: serviceSelected?.value, // 선택된 서비스에서 ID를 가져옵니다.
+            startDate, // 사용자가 선택한 예약 시작 시간
+            endDate, // 예약 종료 시간을 계산하는 함수를 사용해야 합니다.
+            realDuration: selectedDuration ? selectedDuration.label : '', // 실제 지속 시간
+            // realDuration: parseFloat(selectedDuration?.value || '0'), // 실제 지속 시간
+            realPrice: data.price, // 실제 가격
+            // 기타 필요한 데이터...
+          };
+          createBooking(newBookingData)
+            .then((res) => {
+              console.log('>>>>> res: ', res);
+              toast.success('Created booking data successfully');
+              mutate('fetchBooks');
+              closeModal();
+            })
+            .catch((err) => {
+              console.log('>>>>> err: ', err);
+              toast.error('An error occurred while creating the booking data');
+            });
+        }
+      } else {
+        const updatedBookingData = {
+          serviceId: serviceSelected?.value,
+          startDate: startDate,
+          endDate: endDate,
+          realDuration: selectedDuration ? selectedDuration.label : '',
+          realPrice: data.price,
+        };
+        updateBooking(selectedEvent.id, updatedBookingData)
+          .then((res) => {
+            console.log('>>>>> res: ', res);
+            toast.success('Updated booking data successfully');
+            mutate('fetchBooks');
+            closeModal();
+          })
+          .catch((err) => {
+            console.log('>>>>> err: ', err);
+            toast.error('An error occurred while updating the booking data');
+          });
+      }
 
-      // 요청 성공 처리...\
-      toast.success('Appointment booked successfully');
-      mutate('fetchBooks');
-      console.log('Booking created successfully:', response.data);
-      closeModal(); // 모달 닫기
+      // if (selectedEvent?.id) {
+
+      //   updateBooking(selectedEvent.id, updatedBookingData)
+      //     .then((res) => {
+      //       console.log('>>>>> res: ', res);
+      //       toast.success('Updated booking data successfully');
+      //       mutate('fetchBooks');
+      //       closeModal();
+      //     })
+      //     .catch((err) => {
+      //       console.log('>>>>> err: ', err);
+      //       toast.error('An error occurred while updating the booking data');
+      //     });
+      // } else {
+
+      //   createBooking(newBookingData)
+
+      // }
     } catch (error) {
-      // 에러 처리...
-      toast.error('An error occurred while creating the booking data');
-      console.error('Failed to create booking:', error);
+      console.error(error);
+      toast.error('An error occurred while saving the booking data');
     }
   };
 

@@ -27,7 +27,7 @@ const CustomEvent: React.FC<{ event: MyCalendarEvent }> = ({ event }) => {
       <strong>
         {`${event.book?.customer?.firstName}${event.book?.customer?.lastName} `}
       </strong>
-      {moment(event.startDate).format('h:mm A')}
+      {moment(event.start).format('h:mm A')}
       <br />
       {event.book?.service?.name} - ${event.book?.service?.price}
     </div>
@@ -90,7 +90,7 @@ export default function CalendarPage() {
 
   const formatSelectedDate = () => {
     if (!selectedEvent) return '';
-    return moment(selectedEvent.startDate).format('YYYY년 MM월 DD일 dddd');
+    return moment(selectedEvent.start).format('YYYY년 MM월 DD일 dddd');
   };
 
   const handleSelect = (slotInfo: SlotInfo) => {
@@ -126,8 +126,8 @@ export default function CalendarPage() {
         realPrice: 0,
         createdAt: new Date(),
       },
-      startDate: slotInfo.start,
-      endDate: slotInfo.end,
+      start: slotInfo.start,
+      end: slotInfo.end,
     };
     setSelectedEvent(pickBook);
     setModalIsOpen(true);
