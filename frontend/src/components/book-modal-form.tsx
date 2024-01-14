@@ -247,11 +247,6 @@ export default function BookModalForm({
   };
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
-    console.log('>>>>data: ', data);
-    console.log('++++selectedEvent: ', selectedEvent);
-    console.log('++++selectedCustomer.mobile: ', selectedCustomer?.mobile);
-    console.log('++++serviceSelected.value: ', serviceSelected?.value);
-
     try {
       // Create a start date object
       const startDate = createStartDate({
@@ -264,7 +259,6 @@ export default function BookModalForm({
         return;
       }
       // get the duration in minutes
-      console.log('>>>>+++++ data.duration: ', data.duration);
       const durationInMinutes = getMinutesFromDuration(data.duration);
       // const durationInMinutes = getMinutesFromDuration(selectedDuration!.label);
       const endDate = calculateEndDate({
@@ -272,16 +266,8 @@ export default function BookModalForm({
         durationInMinutes: durationInMinutes,
       });
 
-      console.log('>>>>+++++ endDate: ', endDate);
-
       // 폼에서 받은 데이터와 함께 추가적으로 필요한 정보를 구성합니다.
       if (!selectedEvent || !selectedEvent?.id) {
-        // !selectedCustomer?.mobile ||
-        // !serviceSelected?.value
-        // console.error('Missing required booking information');
-        // toast.error('Required booking information is missing');
-        // return;
-
         if (selectedCustomer) {
           const newBookingData = {
             customerId: selectedCustomer?.id, // selectedCustomer에서 ID를 가져옵니다. 여기서 단언이 아닌 옵셔널 체이닝을 사용하고 있습니다.
@@ -325,25 +311,6 @@ export default function BookModalForm({
             toast.error('An error occurred while updating the booking data');
           });
       }
-
-      // if (selectedEvent?.id) {
-
-      //   updateBooking(selectedEvent.id, updatedBookingData)
-      //     .then((res) => {
-      //       console.log('>>>>> res: ', res);
-      //       toast.success('Updated booking data successfully');
-      //       mutate('fetchBooks');
-      //       closeModal();
-      //     })
-      //     .catch((err) => {
-      //       console.log('>>>>> err: ', err);
-      //       toast.error('An error occurred while updating the booking data');
-      //     });
-      // } else {
-
-      //   createBooking(newBookingData)
-
-      // }
     } catch (error) {
       console.error(error);
       toast.error('An error occurred while saving the booking data');

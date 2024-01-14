@@ -23,6 +23,9 @@ export default function Navbar() {
         <NavLink to='/service' className={activeNavClass}>
           Service
         </NavLink>
+        <NavLink to='/consent' className={activeNavClass}>
+          Consent
+        </NavLink>
       </div>
       <SignedOut>
         <NavLink

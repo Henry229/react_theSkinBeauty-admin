@@ -33,19 +33,6 @@ export async function updateBooking(id, bookingData) {
   }
 }
 
-// export async function createCustomerAndBooking(data) {
-//   try {
-//     // 여기에 새로운 고객을 등록하는 로직을 구현
-//     // const newCustomerId = await createCustomer(data);
-//     // 새로운 고객 ID를 사용하여 예약 생성
-//     await createBooking({ ...data, customerId: newCustomerId });
-//     toast.success('New customer and appointment created successfully');
-//   } catch (error) {
-//     console.error('Error creating new customer and appointment:', error);
-//     toast.error('Failed to create new customer and appointment');
-//   }
-// }
-
 export async function createCustomer(newClient) {
   try {
     const response = await axios.post(

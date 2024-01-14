@@ -136,11 +136,7 @@ export default function CalendarPage() {
 
   // 캘린더에서 기존 예약 이벤트를 클릭했을 때 호출되는 함수입니다.
   const handleSelectEvent = (event: MyCalendarEvent) => {
-    console.log('----> books: ', books);
-
     const booking = books.find((booking: bookType) => booking.id === event.id);
-    console.log('----> booking: ', booking.id, '/', event.id);
-
     if (booking) {
       setSelectedEvent(event);
       setModalIsOpen(true);
@@ -150,7 +146,6 @@ export default function CalendarPage() {
   const closeModal = () => {
     setModalIsOpen(false);
     selectCustomer(null); // selectCustomer 함수를 null과 함께 호출하여 고객 선택을 초기화
-    // 입력 필드를 비우는 코드는 이미 useEffect에 존재합니다.
   };
 
   const handleDeleteBook = () => {
@@ -207,7 +202,6 @@ export default function CalendarPage() {
           onDelete={handleDeleteBook}
           isSelectedEvent={!!selectedEvent?.id}
         />
-        {/* <SearchClient onDelete={() => selectedEvent && handleDelete(selectedEvent.id, onDeleteSuccess)} /> */}
 
         <BookModalForm
           // closeModal={() => setModalIsOpen(false)}

@@ -12,6 +12,7 @@ import ServicePage from './pages/servicepage';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import { ClerkProvider, SignIn, SignUp } from '@clerk/clerk-react';
+import ConsentPage from './pages/consentpage';
 
 const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
       { path: '/customer', element: <CustomerPage /> },
       { path: '/category', element: <CategoryPage /> },
       { path: '/service', element: <ServicePage /> },
+      { path: '/consent', element: <ConsentPage /> },
       {
         path: '/sign-in/*',
         element: <SignIn redirectUrl='/' />,
