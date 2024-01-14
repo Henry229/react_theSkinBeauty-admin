@@ -4,19 +4,23 @@ import OptionTypeBase from 'react-select';
 import { useCustomers } from '../hooks/useCustomer';
 import { CustomerType } from '../types/types';
 import { FaSearch } from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa';
 import useCustomerSelect from '../hooks/useCustomerSelect';
 
-// interface OptionType extends OptionTypeBase {
 interface OptionType {
   value: string; // CustomerType.id와 일치하는 타입
   label: string; // 표시될 문자열
 }
 
-// interface SearchClientProps {
-//   onClientSelect: (customer: CustomerType) => void;
-// }
+interface SearchClientProps {
+  onDelete: () => void;
+  isSelectedEvent: boolean;
+}
 
-export default function SearchClient() {
+export default function SearchClient({
+  onDelete,
+  isSelectedEvent,
+}: SearchClientProps) {
   const { fetchCustomers, isLoading } = useCustomers();
   const { selectCustomer: selectCustomerRaw } = useCustomerSelect();
   const selectCustomer = selectCustomerRaw as (customerId: string) => void; // 타입 단언 사용
@@ -32,14 +36,6 @@ export default function SearchClient() {
     })) || [];
 
   const handleChange = (selectedOption: SingleValue<OptionType>) => {
-    // setSelectedCustomer(selectedOption);
-    // selectedOption이 존재하면 onCustomerSelect 콜백을 호출합니다.
-    // if (selectedOption) {
-    //   const customer = fetchCustomers.find(
-    //     (customer: CustomerType) => customer.id === selectedOption.value
-    //   );
-    //   if (customer) onClientSelect(customer);
-    // }
     setSelectedClient(selectedOption);
     if (selectedOption) {
       selectCustomer(selectedOption.value);
@@ -50,19 +46,29 @@ export default function SearchClient() {
   };
 
   return (
-    <div className='flex items-center justify-start mt-2 mb-4 space-x-1'>
-      <Select
-        options={options}
-        value={selectedClient}
-        onChange={handleChange}
-        isLoading={isLoading}
-        isClearable
-        isSearchable
-        placeholder='Search by name or mobile'
-        noOptionsMessage={() => 'No customers found'}
-        className='w-full lg:w-1/2'
-      />
-      <FaSearch className='w-8 h-8 p-1 text-white bg-gray-500 rounded-sm' />
+    <div className='flex items-center justify-between mt-2 mb-4 space-x-1'>
+      <div className='flex w-full space-x-1'>
+        <Select
+          options={options}
+          value={selectedClient}
+          onChange={handleChange}
+          isLoading={isLoading}
+          isClearable
+          isSearchable
+          placeholder='Search by name or mobile'
+          noOptionsMessage={() => 'No customers found'}
+          className='w-full lg:w-1/2'
+        />
+        <FaSearch className='w-8 h-8 p-1 text-white bg-gray-500 rounded-sm' />
+      </div>
+      <div>
+        {isSelectedEvent && (
+          <FaTrash
+            className='w-8 h-8 p-1 ml-2 text-white bg-red-500 rounded-sm cursor-pointer'
+            onClick={onDelete}
+          />
+        )}
+      </div>
     </div>
   );
 }

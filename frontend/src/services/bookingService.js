@@ -61,3 +61,14 @@ export async function createCustomer(newClient) {
     toast.error('An error occurred while creating the customer');
   }
 }
+
+export const handleDelete = async (bookingId, onSuccess) => {
+  try {
+    await axios.delete(`http://localhost:5100/books/${bookingId}`);
+    toast.success('Booking deleted successfully');
+    onSuccess();
+  } catch (error) {
+    console.error('Error deleting booking: ', error);
+    toast.error('Error occurred while deleting the booking');
+  }
+};

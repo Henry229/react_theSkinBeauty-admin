@@ -17,6 +17,7 @@ import { useServices } from '../hooks/useSerivces';
 import { useBooks } from '../hooks/useBooks';
 import { bookType } from '../types/types';
 import useCustomerSelect from '../hooks/useCustomerSelect';
+import { handleDelete } from '../services/bookingService';
 
 Modal.setAppElement('#root');
 
@@ -152,6 +153,19 @@ export default function CalendarPage() {
     // 입력 필드를 비우는 코드는 이미 useEffect에 존재합니다.
   };
 
+  const handleDeleteBook = () => {
+    if (selectedEvent) {
+      handleDelete(selectedEvent.id, onDeleteSuccess);
+    }
+  };
+
+  const onDeleteSuccess = () => {
+    mutate();
+    setModalIsOpen(false);
+  };
+
+  const modalTitle = selectedEvent?.id ? 'Edit Booking' : 'Add Appointment';
+
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading bookings</div>;
 
@@ -186,10 +200,14 @@ export default function CalendarPage() {
         }
         overlayClassName='fixed inset-0 z-50 bg-black bg-opacity-50'
       >
-        <h2 className='mb-4 text-2xl font-semibold'>Add Appointment</h2>
+        <h2 className='mb-4 text-2xl font-semibold'>{modalTitle}</h2>
         <p className='mb-4 text-lg'>{formatSelectedDate()}</p>
 
-        <SearchClient />
+        <SearchClient
+          onDelete={handleDeleteBook}
+          isSelectedEvent={!!selectedEvent?.id}
+        />
+        {/* <SearchClient onDelete={() => selectedEvent && handleDelete(selectedEvent.id, onDeleteSuccess)} /> */}
 
         <BookModalForm
           // closeModal={() => setModalIsOpen(false)}
