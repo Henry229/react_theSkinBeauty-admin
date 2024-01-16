@@ -16,32 +16,4 @@ export interface MyCalendarEvent {
   book: bookType;
   start: Date;
   end: Date;
-  // id: string;
-  // startDate: string;
-  // endDate: string;
-  // customerName: {
-  //   firstName: string;
-  //   lastName: string;
-  // };
-  // mobile: string;
-  // email: string;
-  // service: {
-  //   name: string;
-  //   price: number;
-  // };
 }
-// export interface MyCalendarEvent {
-//   id: string;
-//   startDate: string;
-//   endDate: string;
-//   customerName: {
-//     firstName: string;
-//     lastName: string;
-//   };
-//   mobile: string;
-//   email: string;
-//   service: {
-//     name: string;
-//     price: number;
-//   };
-// }
