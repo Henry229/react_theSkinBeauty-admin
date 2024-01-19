@@ -35,7 +35,7 @@ export default function ServicePage() {
   const deleteService = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this Service?')) {
       try {
-        await axios.delete(`http://localhost:5100/services/${id}`);
+        await axios.delete(`${process.env.REACT_APP_API_URL}/services/${id}`);
         toast.success('Service deleted successfully');
         mutate('services');
       } catch (error) {

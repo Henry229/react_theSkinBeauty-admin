@@ -88,7 +88,7 @@ export default function AddEditCustomerModal({
       if (customer) {
         console.log('>>>>update: ', data);
         const response = await axios.patch(
-          `http://localhost:5100/customers/${customer.id}`,
+          `${process.env.REACT_APP_API_URL}/customers/${customer.id}`,
           data
         );
         updatedCustomer = response.data;
@@ -96,7 +96,7 @@ export default function AddEditCustomerModal({
       } else {
         console.log('>>>>create: ', data);
         const response = await axios.post(
-          'http://localhost:5100/customers',
+          `${process.env.REACT_APP_API_URL}/customers`,
           data
         );
         updatedCustomer = response.data;

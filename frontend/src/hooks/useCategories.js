@@ -3,7 +3,9 @@ import useSWR from 'swr';
 import axios from 'axios';
 
 const fetchCategories = async () => {
-  const response = await axios.get('http://localhost:5100/categories');
+  const response = await axios.get(
+    `${process.env.REACT_APP_API_URL}/categories`
+  );
   return response.data;
 };
 

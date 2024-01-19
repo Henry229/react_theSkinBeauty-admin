@@ -50,7 +50,7 @@ export default function AddEditCategoryModal({
     try {
       if (category) {
         const response = await axios.patch(
-          `http://localhost:5100/categories/${category.id}`,
+          `${process.env.REACT_APP_API_URL}/categories/${category.id}`,
           {
             name: newCategoryName,
           }
@@ -59,9 +59,12 @@ export default function AddEditCategoryModal({
         mutate('categories');
         onClose();
       } else {
-        const response = await axios.post('http://localhost:5100/categories', {
-          name: newCategoryName,
-        });
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/categories`,
+          {
+            name: newCategoryName,
+          }
+        );
         toast.success('Category added successfully');
         mutate('categories');
         onClose();

@@ -139,7 +139,7 @@ export default function AddEditServiceModal({
       if (service) {
         console.log('>>>>update: ', serviceData, '/', service.id);
         response = await axios.patch(
-          `http://localhost:5100/services/${service.id}`,
+          `${process.env.REACT_APP_API_URL}/services/${service.id}`,
           serviceData
         );
         // updatedCustomer = response.data;
@@ -147,7 +147,7 @@ export default function AddEditServiceModal({
       } else {
         console.log('>>>>create: ', data);
         response = await axios.post(
-          'http://localhost:5100/services',
+          `${process.env.REACT_APP_API_URL}/services`,
           serviceData
         );
         // updatedCustomer = response.data;

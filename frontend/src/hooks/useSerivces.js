@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import axios from 'axios';
 
 const fetchServices = async () => {
-  const response = await axios.get('http://localhost:5100/services');
+  const response = await axios.get(`${process.env.REACT_APP_API_URL}/services`);
   return response.data;
 };
 

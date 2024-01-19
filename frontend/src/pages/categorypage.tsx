@@ -35,7 +35,7 @@ export default function CategoryPage() {
   const deleteCategory = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this Category?')) {
       try {
-        await axios.delete(`http://localhost:5100/categories/${id}`);
+        await axios.delete(`${process.env.REACT_APP_API_URL}/categories/${id}`);
         toast.success('Category deleted successfully');
         mutate('categories');
       } catch (error) {

@@ -73,7 +73,7 @@ export default function CustomerPage() {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
         const response = await axios.delete(
-          `http://localhost:5100/customers/${customer.id}`
+          `${process.env.REACT_APP_API_URL}/customers/${customer.id}`
         );
         console.log('>>>>delete: ', response.status);
 
