@@ -16,6 +16,10 @@ app.use(categoryRoute);
 app.use(serviceRoute);
 app.use(bookRoute);
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 // const mysql = require('mysql');
 // const cors = require('cors');
 
