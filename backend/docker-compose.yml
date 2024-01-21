@@ -1,17 +1,20 @@
-version : "3.1"
-services :
-  mysql :
-    image : mysql:latest
-    container_name : mysql
-    ports :
-      - "3306:3306"
-    restart : always
+version: '3.1'
+services:
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: theSkinBeauty-mysql
+    ports:
+      - '3306:3306'
+    restart: always
     env_file:
       - .env
-    environment :
-      TZ : "Australia/Sydney"
-    command :
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - TZ=Australia/Sydney
+    command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
-    volumes :
+    volumes:
       - /home/ubuntu/docker/data/mysql:/var/lib/mysql
