@@ -9,7 +9,7 @@ if [[ ${CHECK_OS} = "Darwin"* ]]; then
   npm run build --prefix ./server/app && docker-compose -f ./server/docker-compose.yml --env-file ./config/.server.env up -d && npm run start:client
 elif [[ "$CHECK_OS" = "Linux"* ]]; then
   npx pm2 start ./backend/server.js --name backend-theSkinBeauty && \
-  docker-compose -f ./backend/docker-compose.yml --env-file ../config/.server.env up -d && \
+  docker-compose -f ./backend/docker-compose.yml --env-file ./config/.server.env up -d && \
   npm run start:client && \
   echo "All services have been started."
   # npm start --prefix ./backend && docker-compose -f ./backend/docker-compose.yml --env-file ./config/.server.env up -d && npm run start:client
