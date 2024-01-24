@@ -1,2 +1,2 @@
-docker-compose -f /home/ubuntu/react_theSkinBeauty-admin/backend/docker-compose.yml --env-file /home/ubuntu/react_theSkinBeauty-admin/config/.server.env down
-###
+# docker-compose -f /home/ubuntu/react_theSkinBeauty-admin/backend/docker-compose.yml --env-file /home/ubuntu/react_theSkinBeauty-admin/config/.server.env down && pm2 delete all && echo "All services have been stopped."
+cd /home/ubuntu/react_theSkinBeauty-admin/backend && docker-compose -f docker-compose.yml --env-file ../config/.server.env down && pm2 delete all && echo "All services have been stopped."
