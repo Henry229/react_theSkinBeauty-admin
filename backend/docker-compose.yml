@@ -18,3 +18,17 @@ services:
       - --collation-server=utf8mb4_unicode_ci
     volumes:
       - /home/ubuntu/docker/data/mysql:/var/lib/mysql
+
+  nodejs:
+    depends_on:
+      - mysql
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: skinbeauty-nodejs-image
+    container_name: skinbeauty-nodejs-container
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - ../config/.server.env
+    restart: always
