@@ -28,7 +28,7 @@ services:
     image: skinbeauty-nodejs-image
     container_name: skinbeauty-nodejs-container
     ports:
-      - ${PORT}:${PORT}
+      - '5100:5100'
     env_file:
       - ../config/.server.env
     restart: always
